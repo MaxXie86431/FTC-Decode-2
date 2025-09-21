@@ -1,0 +1,225 @@
+package org.firstinspires.ftc.teamcode.autonomous;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.bylazar.configurables.annotations.Configurable;
+
+// Limelight dependencies
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+@Autonomous (name="Limelight Color Test")
+@Configurable
+public class LimelightTest extends OpMode{
+    private Follower follower;
+    private Limelight3A limelight;
+    private boolean rotationExecuted = false;
+    private PathChain rotationPath;
+    private String lastDetectedLeftmostColor = "";
+    private static final Pose startPose = new Pose(72, 72, Math.toRadians(90));
+
+    // Yolo static Data Class
+    private static class BallDetection {
+        public String color;
+        public double x;
+        public double y;
+        public double confidence;
+        public double area;
+
+        public BallDetection(String color, double x, double y, double confidence, double area) {
+            this.color = color;
+            this.x = x;
+            this.y = y;
+            this.confidence = confidence;
+            this.area = area;
+        }
+    }
+
+    private String classNameToColor(String className) {
+        switch (className.toLowerCase()) {
+            case "blue_block":
+                return "BLUE";
+            case "red_block":
+                return "RED";
+            case "yellow_block":
+                return "YELLOW";
+            default:
+                return "unknown";
+        }
+    }
+
+
+
+    // returns List["BLUE", "RED", "YELLOW", ...] sorted left to right
+    public List<String> getDetectedBallsLeftToRight() {
+        List<String> sortedColors = new ArrayList<>();
+
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+
+            if (detectorResults != null && !detectorResults.isEmpty()) {
+                // Convert detector results to ball detections
+                List<BallDetection> ballDetections = new ArrayList<>();
+
+                for (LLResultTypes.DetectorResult detection : detectorResults) {
+                    String className = detection.getClassName(); // What was detected
+                    double x = detection.getTargetXDegrees(); // Where it is (left-right)
+                    double y = detection.getTargetYDegrees(); // Where it is (up-down)
+                    double confidence = detection.getConfidence(); // Detection confidence
+                    double area = detection.getTargetArea(); // Target area
+
+                    String color = classNameToColor(className);
+                    if (!color.equals("unknown") && confidence > 0.5) {
+                        ballDetections.add(new BallDetection(
+                                color,
+                                x,        // x-coordinate in degrees
+                                y,        // y-coordinate in degrees
+                                confidence, // confidence value
+                                area      // area value
+                        ));
+                    }
+                }
+
+                // Sort by x-coordinate (left to right)
+                Collections.sort(ballDetections, new Comparator<BallDetection>() {
+                    @Override
+                    public int compare(BallDetection a, BallDetection b) {
+                        return Double.compare(a.x, b.x);
+                    }
+                });
+
+                // Extract colors in sorted order
+                for (BallDetection detection : ballDetections) {
+                    sortedColors.add(detection.color);
+                }
+
+
+            }
+        }
+
+        return sortedColors;
+    }
+
+    private String getLeftmostColor() {
+        List<String> colors = getDetectedBallsLeftToRight();
+        if (!colors.isEmpty()) {
+            return colors.get(0); // Return leftmost (first) color
+        }
+        return "";
+    }
+
+    private void buildRotationPath(double rotationDegrees) {
+        // Get current robot pose
+        Pose currentPose = follower.getPose();
+        // Calculate rotation (convert degrees to radians and add to current heading)
+        double rotationRadians = Math.toRadians(rotationDegrees);
+        double newHeading = currentPose.getHeading() + rotationRadians;
+        // Keep same position, only change heading
+        Pose rotationPose = new Pose(currentPose.getX(), currentPose.getY(), newHeading);
+
+        rotationPath = follower.pathBuilder()
+            .addPath(new BezierLine(currentPose, rotationPose))
+            .setLinearHeadingInterpolation(currentPose.getHeading(), newHeading)
+            .build();
+    }
+
+
+    @Override
+    public void loop() {
+        // Loop robot movement and odometry values (for rotation only)
+        follower.update();
+
+        List<String> detectedColors = getDetectedBallsLeftToRight();
+        String leftmostColor = getLeftmostColor();
+
+        if (!rotationExecuted && !leftmostColor.isEmpty()) {
+            rotationExecuted = true;
+            lastDetectedLeftmostColor = leftmostColor;
+
+            double rotationDegrees = 0;
+            switch (leftmostColor) {
+                case "RED":
+                    rotationDegrees = 180;
+                    break;
+                case "BLUE":
+                    rotationDegrees = 360;
+                    break;
+                case "YELLOW":
+                    rotationDegrees = 540;
+                    break;
+            }
+
+            if (rotationDegrees > 0) {
+                buildRotationPath(rotationDegrees);
+                follower.followPath(rotationPath, true);
+                telemetry.addData("Action", "Rotating %.0f degrees - %s detected leftmost!", rotationDegrees, leftmostColor);
+            }
+        } else if (rotationExecuted && !follower.isBusy()) {
+            telemetry.addData("Action", "Rotation completed for %s", lastDetectedLeftmostColor);
+        }
+
+        telemetry.addData("Detected Colors L->R", detectedColors.toString());
+        telemetry.addData("Leftmost Color", leftmostColor.isEmpty() ? "None" : leftmostColor);
+        telemetry.addData("Rotation Executed", rotationExecuted);
+
+        // Show detailed detection information
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
+            if (detections != null && !detections.isEmpty()) {
+                telemetry.addData("Total Detections", detections.size());
+                for (int i = 0; i < detections.size() && i < 5; i++) {
+                    LLResultTypes.DetectorResult detection = detections.get(i);
+                    String className = detection.getClassName();
+                    double x = detection.getTargetXDegrees();
+                    double y = detection.getTargetYDegrees();
+                    double confidence = detection.getConfidence();
+                    telemetry.addData(className, String.format("at (%.1f, %.1f)° conf:%.2f", x, y, confidence));
+                }
+            } else {
+                telemetry.addData("Status", "No objects detected");
+            }
+        }
+
+        telemetry.update();
+    }
+    @Override
+    public void init() {
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+
+        // init
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);
+
+        telemetry.addData("Status", "Initialized - Limelight Color Detection Ready");
+        telemetry.addData("Instructions", "RED=180°, BLUE=360°, YELLOW=540°");
+        telemetry.addData("Note", "Robot will only rotate, never move");
+        telemetry.update();
+    }
+    @Override
+    public void start() {
+        limelight.start();
+        telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        if (limelight != null) {
+            limelight.stop();
+        }
+    }
+
+}
