@@ -60,11 +60,12 @@ public class LimelightTest extends OpMode {
                     }
                 }
 
+
                 // Sort by x-coordinate (left to right)
                 Collections.sort(validDetections, new Comparator<LLResultTypes.DetectorResult>() {
                     @Override
                     public int compare(LLResultTypes.DetectorResult a, LLResultTypes.DetectorResult b) {
-                        return Double.compare(a.getTargetXDegrees(), b.getTargetXDegrees());
+                        return Double.compare(a.getTargetXPixels(), b.getTargetXPixels());
                     }
                 });
 
@@ -86,18 +87,7 @@ public class LimelightTest extends OpMode {
         return "";
     }
 
-    private void buildRotationPath(double rotationDegrees) {
-        Pose currentPose = follower.getPose();
-        double rotationRadians = Math.toRadians(rotationDegrees);
-        double newHeading = currentPose.getHeading() + rotationRadians;
 
-        Pose rotationPose = new Pose(currentPose.getX(), currentPose.getY(), newHeading);
-
-        rotationPath = follower.pathBuilder()
-                .addPath(new BezierLine(currentPose, rotationPose))
-                .setLinearHeadingInterpolation(currentPose.getHeading(), newHeading)
-                .build();
-    }
 
     @Override
     public void loop() {
@@ -106,36 +96,11 @@ public class LimelightTest extends OpMode {
         List<String> detectedColors = getDetectedBallsLeftToRight();
         String leftmostColor = getLeftmostColor();
 
-        if (!rotationExecuted && !leftmostColor.isEmpty()) {
-            rotationExecuted = true;
-            lastDetectedLeftmostColor = leftmostColor;
-
-            double rotationDegrees = 0;
-            switch (leftmostColor) {
-                case "RED":
-                    rotationDegrees = 180;
-                    break;
-                case "BLUE":
-                    rotationDegrees = 360;
-                    break;
-                case "YELLOW":
-                    rotationDegrees = 540;
-                    break;
-            }
-
-            if (rotationDegrees > 0) {
-                buildRotationPath(rotationDegrees);
-                follower.followPath(rotationPath, true);
-                telemetry.addData("Action", "Rotating %.0f degrees - %s detected leftmost!", rotationDegrees, leftmostColor);
-            }
-        } else if (rotationExecuted && !follower.isBusy()) {
-            telemetry.addData("Action", "Rotation completed for %s", lastDetectedLeftmostColor);
-        }
 
         telemetry.addData("Detected Colors L->R", detectedColors.toString());
         telemetry.addData("Leftmost Color", leftmostColor.isEmpty() ? "None" : leftmostColor);
-        telemetry.addData("Rotation Executed", rotationExecuted);
 
+        /*
         // Show detailed detection information
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
@@ -152,9 +117,13 @@ public class LimelightTest extends OpMode {
                 }
             } else {
                 telemetry.addData("Status", "No objects detected");
-            }
-        }
 
+
+            }
+
+
+        }
+        */
         telemetry.update();
     }
 
@@ -167,8 +136,6 @@ public class LimelightTest extends OpMode {
         limelight.pipelineSwitch(0);
 
         telemetry.addData("Status", "Initialized - Limelight Color Detection Ready");
-        telemetry.addData("Instructions", "RED=180°, BLUE=360°, YELLOW=540°");
-        telemetry.addData("Note", "Robot will only rotate, never move");
         telemetry.update();
     }
 
