@@ -10,25 +10,12 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import dev.nextftc.core.commands.Command;
-import dev.nextftc.core.commands.groups.ParallelGroup;
-import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.TurnBy;
 import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
-import dev.nextftc.extensions.pedro.FollowPath;
-import dev.nextftc.hardware.positionable.SetPosition;
-import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
