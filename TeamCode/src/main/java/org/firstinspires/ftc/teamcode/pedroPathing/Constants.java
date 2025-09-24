@@ -35,13 +35,14 @@ public class Constants {
                     0.01
             ))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.1,
+                    0.001,
                     0,
-                    0.00035,
-                    0.6,
-                    0.015
+                    0.00001,
+                    0,
+                    0.3
             ))
-            .centripetalScaling(0.0005);
+            .centripetalScaling(0.0012);
+
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
