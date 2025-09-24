@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -24,7 +23,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class LimelightTest extends OpMode {
     private Follower follower;
     private Limelight3A limelight;
-    private boolean rotationExecuted = false;
     private PathChain rotationPath;
     private String lastDetectedLeftmostColor = "";
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(90));
@@ -60,8 +58,7 @@ public class LimelightTest extends OpMode {
                     }
                 }
 
-
-                // Sort by x-coordinate (left to right)
+                // Sort by X pixels (left to right)
                 Collections.sort(validDetections, new Comparator<LLResultTypes.DetectorResult>() {
                     @Override
                     public int compare(LLResultTypes.DetectorResult a, LLResultTypes.DetectorResult b) {
@@ -81,13 +78,8 @@ public class LimelightTest extends OpMode {
 
     private String getLeftmostColor() {
         List<String> colors = getDetectedBallsLeftToRight();
-        if (!colors.isEmpty()) {
-            return colors.get(0); // Return leftmost (first) color
-        }
-        return "";
+        return colors.isEmpty() ? "" : colors.get(0);
     }
-
-
 
     @Override
     public void loop() {
@@ -96,34 +88,8 @@ public class LimelightTest extends OpMode {
         List<String> detectedColors = getDetectedBallsLeftToRight();
         String leftmostColor = getLeftmostColor();
 
-
         telemetry.addData("Detected Colors L->R", detectedColors.toString());
         telemetry.addData("Leftmost Color", leftmostColor.isEmpty() ? "None" : leftmostColor);
-
-        /*
-        // Show detailed detection information
-        LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
-            if (detections != null && !detections.isEmpty()) {
-                telemetry.addData("Total Detections", detections.size());
-                for (int i = 0; i < detections.size() && i < 5; i++) {
-                    LLResultTypes.DetectorResult detection = detections.get(i);
-                    String className = detection.getClassName();
-                    double x = detection.getTargetXDegrees();
-                    double y = detection.getTargetYDegrees();
-                    double confidence = detection.getConfidence();
-                    telemetry.addData(className, String.format("at (%.1f, %.1f)° conf:%.2f", x, y, confidence));
-                }
-            } else {
-                telemetry.addData("Status", "No objects detected");
-
-
-            }
-
-
-        }
-        */
         telemetry.update();
     }
 
