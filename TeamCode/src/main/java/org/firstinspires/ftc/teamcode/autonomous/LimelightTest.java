@@ -19,32 +19,15 @@ import java.util.Comparator;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous (name="Limelight Color Test")
+@Autonomous(name="Limelight Color Test")
 @Configurable
-public class LimelightTest extends OpMode{
+public class LimelightTest extends OpMode {
     private Follower follower;
     private Limelight3A limelight;
     private boolean rotationExecuted = false;
     private PathChain rotationPath;
     private String lastDetectedLeftmostColor = "";
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(90));
-
-    // Yolo static Data Class
-    private static class BallDetection {
-        public String color;
-        public double x;
-        public double y;
-        public double confidence;
-        public double area;
-
-        public BallDetection(String color, double x, double y, double confidence, double area) {
-            this.color = color;
-            this.x = x;
-            this.y = y;
-            this.confidence = confidence;
-            this.area = area;
-        }
-    }
 
     private String classNameToColor(String className) {
         switch (className.toLowerCase()) {
@@ -59,8 +42,6 @@ public class LimelightTest extends OpMode{
         }
     }
 
-
-
     // returns List["BLUE", "RED", "YELLOW", ...] sorted left to right
     public List<String> getDetectedBallsLeftToRight() {
         List<String> sortedColors = new ArrayList<>();
@@ -70,42 +51,27 @@ public class LimelightTest extends OpMode{
             List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
 
             if (detectorResults != null && !detectorResults.isEmpty()) {
-                // Convert detector results to ball detections
-                List<BallDetection> ballDetections = new ArrayList<>();
-
+                // Filter valid detections
+                List<LLResultTypes.DetectorResult> validDetections = new ArrayList<>();
                 for (LLResultTypes.DetectorResult detection : detectorResults) {
-                    String className = detection.getClassName(); // What was detected
-                    double x = detection.getTargetXDegrees(); // Where it is (left-right)
-                    double y = detection.getTargetYDegrees(); // Where it is (up-down)
-                    double confidence = detection.getConfidence(); // Detection confidence
-                    double area = detection.getTargetArea(); // Target area
-
-                    String color = classNameToColor(className);
-                    if (!color.equals("unknown") && confidence > 0.5) {
-                        ballDetections.add(new BallDetection(
-                                color,
-                                x,        // x-coordinate in degrees
-                                y,        // y-coordinate in degrees
-                                confidence, // confidence value
-                                area      // area value
-                        ));
+                    String color = classNameToColor(detection.getClassName());
+                    if (!color.equals("unknown") && detection.getConfidence() > 0.5) {
+                        validDetections.add(detection);
                     }
                 }
 
                 // Sort by x-coordinate (left to right)
-                Collections.sort(ballDetections, new Comparator<BallDetection>() {
+                Collections.sort(validDetections, new Comparator<LLResultTypes.DetectorResult>() {
                     @Override
-                    public int compare(BallDetection a, BallDetection b) {
-                        return Double.compare(a.x, b.x);
+                    public int compare(LLResultTypes.DetectorResult a, LLResultTypes.DetectorResult b) {
+                        return Double.compare(a.getTargetXDegrees(), b.getTargetXDegrees());
                     }
                 });
 
                 // Extract colors in sorted order
-                for (BallDetection detection : ballDetections) {
-                    sortedColors.add(detection.color);
+                for (LLResultTypes.DetectorResult detection : validDetections) {
+                    sortedColors.add(classNameToColor(detection.getClassName()));
                 }
-
-
             }
         }
 
@@ -121,24 +87,20 @@ public class LimelightTest extends OpMode{
     }
 
     private void buildRotationPath(double rotationDegrees) {
-        // Get current robot pose
         Pose currentPose = follower.getPose();
-        // Calculate rotation (convert degrees to radians and add to current heading)
         double rotationRadians = Math.toRadians(rotationDegrees);
         double newHeading = currentPose.getHeading() + rotationRadians;
-        // Keep same position, only change heading
+
         Pose rotationPose = new Pose(currentPose.getX(), currentPose.getY(), newHeading);
 
         rotationPath = follower.pathBuilder()
-            .addPath(new BezierLine(currentPose, rotationPose))
-            .setLinearHeadingInterpolation(currentPose.getHeading(), newHeading)
-            .build();
+                .addPath(new BezierLine(currentPose, rotationPose))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), newHeading)
+                .build();
     }
-
 
     @Override
     public void loop() {
-        // Loop robot movement and odometry values (for rotation only)
         follower.update();
 
         List<String> detectedColors = getDetectedBallsLeftToRight();
@@ -195,12 +157,12 @@ public class LimelightTest extends OpMode{
 
         telemetry.update();
     }
+
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
-        // init
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
 
@@ -209,6 +171,7 @@ public class LimelightTest extends OpMode{
         telemetry.addData("Note", "Robot will only rotate, never move");
         telemetry.update();
     }
+
     @Override
     public void start() {
         limelight.start();
@@ -221,5 +184,4 @@ public class LimelightTest extends OpMode{
             limelight.stop();
         }
     }
-
 }
