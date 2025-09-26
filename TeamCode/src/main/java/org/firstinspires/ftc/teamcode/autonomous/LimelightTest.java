@@ -28,12 +28,13 @@ public class LimelightTest extends OpMode {
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(90));
 
     private String classNameToColor(String className) {
+
         switch (className.toLowerCase()) {
-            case "blue_block":
+            case "blue":
                 return "BLUE";
-            case "red_block":
+            case "red":
                 return "RED";
-            case "yellow_block":
+            case "yellow":
                 return "YELLOW";
             default:
                 return "unknown";
@@ -45,9 +46,13 @@ public class LimelightTest extends OpMode {
         List<String> sortedColors = new ArrayList<>();
 
         LLResult result = limelight.getLatestResult();
+        //telemetry.addData("Data_result", result);
+        //telemetry.update();
         if (result != null && result.isValid()) {
             List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
 
+            //telemetry.addData("Data", detectorResults);
+            //telemetry.update();
             if (detectorResults != null && !detectorResults.isEmpty()) {
                 // Filter valid detections
                 List<LLResultTypes.DetectorResult> validDetections = new ArrayList<>();
@@ -55,6 +60,8 @@ public class LimelightTest extends OpMode {
                     String color = classNameToColor(detection.getClassName());
                     if (!color.equals("unknown") && detection.getConfidence() > 0.5) {
                         validDetections.add(detection);
+                        telemetry.addData("Color", color);
+
                     }
                 }
 
@@ -73,24 +80,18 @@ public class LimelightTest extends OpMode {
             }
         }
 
+        telemetry.addData("Detected Colors L->R", sortedColors.toString());
+        telemetry.addData("Leftmost Color", sortedColors.isEmpty() ? "None" : sortedColors.get(0));
+        telemetry.update();
+
         return sortedColors;
     }
-
-    private String getLeftmostColor() {
-        List<String> colors = getDetectedBallsLeftToRight();
-        return colors.isEmpty() ? "" : colors.get(0);
-    }
-
     @Override
     public void loop() {
         follower.update();
 
         List<String> detectedColors = getDetectedBallsLeftToRight();
-        String leftmostColor = getLeftmostColor();
 
-        telemetry.addData("Detected Colors L->R", detectedColors.toString());
-        telemetry.addData("Leftmost Color", leftmostColor.isEmpty() ? "None" : leftmostColor);
-        telemetry.update();
     }
 
     @Override
