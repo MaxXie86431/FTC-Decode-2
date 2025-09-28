@@ -4,6 +4,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.robot.Claw;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.groups.ParallelGroup;
@@ -11,18 +12,20 @@ import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
+import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.impl.ServoEx;
-import dev.nextftc.hardware.positionable.SetPosition;
 
 @TeleOp(name = "NextFTC Driver Controlled")
 public class DriverControlled extends NextFTCOpMode {
+
     public DriverControlled() {
         addComponents(
+                new PedroComponent(Constants::createFollower),
+                new SubsystemComponent(Claw.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -33,14 +36,11 @@ public class DriverControlled extends NextFTCOpMode {
     private final MotorEx frontRightMotor = new MotorEx("Top-Right-Motor").reversed();
     private final MotorEx backLeftMotor = new MotorEx("Bottom-Left-Motor");
     private final MotorEx backRightMotor = new MotorEx("Bottom-Right-Motor");
-    private ServoEx servo = new ServoEx("Servo");
     private boolean open = false;
-    Command resetServo = new SetPosition(servo, 0).requires(this);
-    Command moveServo = new SetPosition(servo, 0.1).requires(this);
 
     @Override
     public void onInit() {
-        resetServo.schedule();
+        Claw.INSTANCE.closeServo.schedule();
     }
 
     @Override
@@ -59,11 +59,13 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().leftBumper().whenBecomesTrue(() -> {
             open = !open;
             if (open) {
-                moveServo.schedule();
+                Claw.INSTANCE.openServo.schedule();
             } else {
-                resetServo.schedule();
+                Claw.INSTANCE.closeServo.schedule();
             }
         });
-
+        Gamepads.gamepad1().rightBumper().whenBecomesTrue(() -> {
+            Claw.INSTANCE.moventurn().schedule();
+        });
     }
 }
