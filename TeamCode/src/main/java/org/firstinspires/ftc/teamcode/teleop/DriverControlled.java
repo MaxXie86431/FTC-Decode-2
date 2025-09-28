@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.groups.ParallelGroup;
@@ -31,6 +34,14 @@ public class DriverControlled extends NextFTCOpMode {
     private final MotorEx backLeftMotor = new MotorEx("Bottom-Left-Motor");
     private final MotorEx backRightMotor = new MotorEx("Bottom-Right-Motor");
     private ServoEx servo = new ServoEx("Servo");
+    private boolean open = false;
+    Command resetServo = new SetPosition(servo, 0).requires(this);
+    Command moveServo = new SetPosition(servo, 0.1).requires(this);
+
+    @Override
+    public void onInit() {
+        resetServo.schedule();
+    }
 
     @Override
     public void onStartButtonPressed() {
@@ -43,11 +54,16 @@ public class DriverControlled extends NextFTCOpMode {
                 Gamepads.gamepad1().leftStickX(),
                 Gamepads.gamepad1().rightStickX()
         );
-        Command moveServo = new SetPosition(servo, 0.2).requires(this);
 
         driverControlled.schedule();
-        Gamepads.gamepad1().leftBumper().whenBecomesTrue(
-                moveServo
-        );
+        Gamepads.gamepad1().leftBumper().whenBecomesTrue(() -> {
+            open = !open;
+            if (open) {
+                moveServo.schedule();
+            } else {
+                resetServo.schedule();
+            }
+        });
+
     }
 }
