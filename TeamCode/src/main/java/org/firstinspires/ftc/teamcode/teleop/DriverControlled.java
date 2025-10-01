@@ -57,6 +57,7 @@ public class DriverControlled extends NextFTCOpMode {
 
         driverControlled.schedule();
         Gamepads.gamepad1().leftBumper().whenBecomesTrue(() -> {
+            //open (0.2) is logo on left closed (0) is logo on right
             open = !open;
             if (open) {
                 Claw.INSTANCE.openServo.schedule();
