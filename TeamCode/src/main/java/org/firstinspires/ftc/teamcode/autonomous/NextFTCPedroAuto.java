@@ -38,6 +38,7 @@ public class NextFTCPedroAuto extends NextFTCOpMode {
                 BulkReadComponent.INSTANCE
         );
     }
+    //open (0.2) is logo on left closed (0) is logo on right
     private Command moveServo = new SetPosition(servo, 0.2).requires(this);
     private Command autonomousRoutine(){
         return new ParallelGroup(

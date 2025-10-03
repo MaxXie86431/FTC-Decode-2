@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 // Limelight dependencies
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
@@ -16,10 +17,14 @@ import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
+@Configurable
 @TeleOp(name = "April Tags Center")
 public class apriltagscenter extends NextFTCOpMode  {
         private Limelight3A Limelight3A;
-
+        public static double limelightMountAngleDegrees = 0;
+        public static double limelightLensHeightInches = 13.0;
+        public static double goalHeightInches = 10.5;
+        public static double anglefactor = 1.5;
         public apriltagscenter() {
                 addComponents(
                         new PedroComponent(Constants::createFollower),
@@ -47,9 +52,13 @@ public class apriltagscenter extends NextFTCOpMode  {
                                 LLResult LLResult = Limelight3A.getLatestResult();
                                 if (LLResult != null && LLResult.isValid()) {
                                         double angle = LLResult.getTx();
+                                        double verticalangle = LLResult.getTy();
+                                        double angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
+                                        double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
                                         telemetry.addData("Target X", angle);
+                                        telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
                                         telemetry.update();
-                                        turns(-1.5*angle).schedule();
+                                        turns(-anglefactor*angle).schedule();
                                 }
 
                         });
