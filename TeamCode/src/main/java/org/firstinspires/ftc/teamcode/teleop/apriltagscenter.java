@@ -23,7 +23,7 @@ public class apriltagscenter extends NextFTCOpMode  {
         private Limelight3A Limelight3A;
         public static double limelightMountAngleDegrees = 0;
         public static double limelightLensHeightInches = 13.0;
-        public static double goalHeightInches = 10.5;
+        public static double goalHeightInches = 29.5;
         public static double anglefactor = 1.5;
         public apriltagscenter() {
                 addComponents(
