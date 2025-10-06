@@ -56,6 +56,7 @@ public class apriltagscenter extends NextFTCOpMode  {
                                         double angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
                                         double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
                                         telemetry.addData("Target X", angle);
+                                        telemetry.addData("Target Y", angleToGoal);
                                         telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
                                         telemetry.update();
                                         turns(-anglefactor*angle).schedule();

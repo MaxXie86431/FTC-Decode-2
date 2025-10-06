@@ -57,9 +57,9 @@ public class apriltagssnapshot extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        Limelight3A.deleteSnapshots();
         Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Limelight3A.pipelineSwitch(1); // april tag 12 pipeline
+        Limelight3A.deleteSnapshots();
         Limelight3A.captureSnapshot("auto_capture_oninit");
     }
 }
