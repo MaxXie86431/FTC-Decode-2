@@ -13,8 +13,6 @@ import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
-import com.bylazar.graph.GraphManager;
-import com.bylazar.graph.PanelsGraph;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -50,7 +48,6 @@ public class Tuning extends SelectableOpMode {
 
     @IgnoreConfigurable
     static TelemetryManager telemetryM;
-
     @IgnoreConfigurable
     static ArrayList<String> changes = new ArrayList<>();
 
@@ -98,6 +95,10 @@ public class Tuning extends SelectableOpMode {
         poseHistory = follower.getPoseHistory();
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        //telemetryM = PanelsGraph.INSTANCE.getManager();
+
+
+
     }
 
     @Override
@@ -741,7 +742,6 @@ class TranslationalTuner extends OpMode {
 
     private Path forwards;
     private Path backwards;
-    private GraphManager graphManager;
     Vector error;
 
     @Override
@@ -760,7 +760,6 @@ class TranslationalTuner extends OpMode {
 
     @Override
     public void start() {
-        graphManager= PanelsGraph.INSTANCE.getManager();
         follower.deactivateAllPIDFs();
         follower.activateTranslational();
         forwards = new Path(new BezierLine(new Pose(0,0), new Pose(DISTANCE,0)));
@@ -792,12 +791,16 @@ class TranslationalTuner extends OpMode {
     }
 
     private void updateSignals() {
-        //graphManager.addData("Time", timer.getElapsedTimeSeconds());
+        //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
         error = follower.getTranslationalError();
-        graphManager.addData("X Error: ", error.getXComponent());
-        graphManager.addData("Y Error: ", error.getYComponent());
-        graphManager.addData("Goal: ", 0);
-        graphManager.update();
+        telemetryM.addData("X Error: ", error.getXComponent());
+        telemetryM.addData("Y Error: ", error.getYComponent());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.addData("X Error: ", error.getXComponent());
+        telemetryM.addData("Y Error: ", error.getYComponent());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.update();
+        telemetryM.update();
 
     }
 }
@@ -820,10 +823,10 @@ class HeadingTuner extends OpMode {
     private Path forwards;
     private Path backwards;
 
-    private GraphManager graphManager;
 
     @Override
-    public void init() {}
+    public void init() {
+    }
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -841,7 +844,6 @@ class HeadingTuner extends OpMode {
 
     @Override
     public void start() {
-        graphManager = PanelsGraph.INSTANCE.getManager();
         follower.deactivateAllPIDFs();
         follower.activateHeading();
         forwards = new Path(new BezierLine(new Pose(0,0), new Pose(DISTANCE,0)));
@@ -849,6 +851,8 @@ class HeadingTuner extends OpMode {
         backwards = new Path(new BezierLine(new Pose(DISTANCE,0), new Pose(0,0)));
         backwards.setConstantHeadingInterpolation(0);
         follower.followPath(forwards);
+        telemetryM.update();
+        
     }
 
     /**
@@ -877,10 +881,13 @@ class HeadingTuner extends OpMode {
     }
 
     private void updateSignals() {
-        //graphManager.addData("Time", timer.getElapsedTimeSeconds());
-        graphManager.addData("Error: ", follower.getHeadingError());
-        graphManager.addData("Goal: ", 0);
-        graphManager.update();
+        //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
+        telemetryM.addData("Error: ", follower.getHeadingError());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.addData("Error: ", follower.getHeadingError());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.update();
+        telemetryM.update();
 
     }
 }
@@ -901,12 +908,11 @@ class DriveTuner extends OpMode {
     private PathChain forwards;
     private PathChain backwards;
 
-    private GraphManager graphManager;
-    private TelemetryManager panelsTelemetry;
     private Timer timer;
 
     @Override
-    public void init() {}
+    public void init() {
+    }
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
      * initializes the Panels telemetry.
@@ -923,8 +929,7 @@ class DriveTuner extends OpMode {
 
     @Override
     public void start() {
-        graphManager = PanelsGraph.INSTANCE.getManager();
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
 
         timer = new Timer();
         timer.resetTimer();
@@ -973,10 +978,13 @@ class DriveTuner extends OpMode {
     }
 
     private void updateSignals() {
-        //graphManager.addData("Time", timer.getElapsedTimeSeconds());
-        graphManager.addData("Error: ", follower.getDriveError());
-        graphManager.addData("Goal: ", 0);
-        graphManager.update();
+        //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
+        telemetryM.addData("Error: ", follower.getDriveError());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.addData("Error: ", follower.getDriveError());
+        telemetryM.addData("Goal: ", 0);
+        telemetryM.update();
+        telemetryM.update();
 
     }
 }
