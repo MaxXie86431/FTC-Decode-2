@@ -884,10 +884,7 @@ class HeadingTuner extends OpMode {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
         telemetryM.addData("Error: ", follower.getHeadingError());
         telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("Error: ", follower.getHeadingError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.update();
-        telemetryM.update();
+        telemetryM.update(telemetry);
 
     }
 }
