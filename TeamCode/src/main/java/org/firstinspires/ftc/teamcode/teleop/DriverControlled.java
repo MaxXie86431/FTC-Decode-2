@@ -32,8 +32,8 @@ public class DriverControlled extends NextFTCOpMode {
     }
 
     // change the names and directions to suit your robot
-    private final MotorEx frontLeftMotor = new MotorEx("Top-Left-Motor").reversed();
-    private final MotorEx frontRightMotor = new MotorEx("Top-Right-Motor").reversed();
+    private final MotorEx frontLeftMotor = new MotorEx("Top-Left-Motor");
+    private final MotorEx frontRightMotor = new MotorEx("Top-Right-Motor");
     private final MotorEx backLeftMotor = new MotorEx("Bottom-Left-Motor");
     private final MotorEx backRightMotor = new MotorEx("Bottom-Right-Motor");
     private boolean open = false;

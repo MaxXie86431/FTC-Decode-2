@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import dev.nextftc.ftc.components.BulkReadComponent;
 @Autonomous(name="AprilTag Localization")
 @Configurable
-public class AprilTags extends NextFTCOpMode {
+public class Another extends NextFTCOpMode {
     private Limelight3A Limelight3A;
     {
         addComponents(
