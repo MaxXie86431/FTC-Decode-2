@@ -23,6 +23,7 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import java.util.ArrayList;
@@ -793,12 +794,12 @@ class TranslationalTuner extends OpMode {
     private void updateSignals() {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
         error = follower.getTranslationalError();
-        telemetryM.addData("X Error: ", error.getXComponent());
-        telemetryM.addData("Y Error: ", error.getYComponent());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("X Error: ", error.getXComponent());
-        telemetryM.addData("Y Error: ", error.getYComponent());
-        telemetryM.addData("Goal: ", 0);
+        telemetryM.addData("X Error", error.getXComponent());
+        telemetryM.addData("Y Error", error.getYComponent());
+        telemetryM.addData("Goal", 0);
+        telemetryM.addData("X Error", error.getXComponent());
+        telemetryM.addData("Y Error", error.getYComponent());
+        telemetryM.addData("Goal", 0);
         telemetryM.update();
         telemetryM.update();
 
@@ -822,6 +823,8 @@ class HeadingTuner extends OpMode {
 
     private Path forwards;
     private Path backwards;
+
+    private double errorVariable;
 
 
     @Override
@@ -851,7 +854,7 @@ class HeadingTuner extends OpMode {
         backwards = new Path(new BezierLine(new Pose(DISTANCE,0), new Pose(0,0)));
         backwards.setConstantHeadingInterpolation(0);
         follower.followPath(forwards);
-        telemetryM.update();
+        telemetryM.update(telemetry);
         
     }
 
@@ -881,9 +884,16 @@ class HeadingTuner extends OpMode {
     }
 
     private void updateSignals() {
-        //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
-        telemetryM.addData("Error: ", follower.getHeadingError());
-        telemetryM.addData("Goal: ", 0);
+        errorVariable = follower.getHeadingError();
+
+
+        telemetryM.addData("Error", errorVariable);
+        telemetryM.addData("Goal", 0);
+        telemetryM.update(telemetry);
+
+
+        telemetryM.addData("Error", follower.getHeadingError());
+        telemetryM.addData("Goal", 0);
         telemetryM.update(telemetry);
 
     }
@@ -978,10 +988,7 @@ class DriveTuner extends OpMode {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
         telemetryM.addData("Error: ", follower.getDriveError());
         telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("Error: ", follower.getDriveError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.update();
-        telemetryM.update();
+        telemetryM.update(telemetry);
 
     }
 }
