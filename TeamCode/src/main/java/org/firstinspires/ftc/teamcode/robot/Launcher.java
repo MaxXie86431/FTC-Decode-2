@@ -25,7 +25,10 @@ public class Launcher implements Subsystem {
 
     private MotorEx motor1 = new MotorEx("LeftMotor");
     private MotorEx motor2 = new MotorEx("RightMotor");
-
+    public void init() {
+        motor1 = new MotorEx("LeftMotor");
+        motor2 = new MotorEx("RightMotor");
+    }
     public Command inwards() {
         return new ParallelGroup(
                 new SetPower(motor1, 1),
@@ -36,6 +39,12 @@ public class Launcher implements Subsystem {
         return new ParallelGroup(
                 new SetPower(motor1, -1),
                 new SetPower(motor2, -1)
+        );
+    }
+    public Command stop(){
+        return new ParallelGroup(
+                new SetPower(motor1, 0),
+                new SetPower(motor2, 0)
         );
     }
 }
