@@ -23,11 +23,11 @@ public class Launcher implements Subsystem {
     public static final Launcher INSTANCE = new Launcher();
     private Launcher() {}
 
-    private MotorEx motor1 = new MotorEx("LeftMotor");
-    private MotorEx motor2 = new MotorEx("RightMotor");
+   private MotorEx motor1;
+   private MotorEx motor2;
     public void init() {
-        motor1 = new MotorEx("LeftMotor");
-        motor2 = new MotorEx("RightMotor");
+        motor1 = new MotorEx("BottomLaunch");
+        motor2 = new MotorEx("TopLaunch");
     }
     public Command inwards() {
         return new ParallelGroup(
