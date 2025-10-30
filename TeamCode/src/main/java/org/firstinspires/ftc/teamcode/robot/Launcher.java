@@ -23,8 +23,13 @@ public class Launcher implements Subsystem {
     public static final Launcher INSTANCE = new Launcher();
     private Launcher() {}
 
+<<<<<<< Updated upstream
    private MotorEx motor1;
    private MotorEx motor2;
+=======
+    private MotorEx motor1;
+    private MotorEx motor2;
+>>>>>>> Stashed changes
     public void init() {
         motor1 = new MotorEx("BottomLaunch");
         motor2 = new MotorEx("TopLaunch");
