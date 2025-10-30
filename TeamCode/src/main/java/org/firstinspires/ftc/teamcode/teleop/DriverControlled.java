@@ -46,9 +46,11 @@ public class DriverControlled extends NextFTCOpMode {
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(0));
     @Override
     public void onInit() {
+        Launcher.INSTANCE.init();
         Claw.INSTANCE.closeServo.schedule();
         follower().setStartingPose(startPose);
     }
+
 
     @Override
     public void onStartButtonPressed() {
@@ -59,23 +61,41 @@ public class DriverControlled extends NextFTCOpMode {
         );
 
         driverControlled.schedule();
-        Gamepads.gamepad1().leftBumper().whenBecomesTrue(() -> {
+        Gamepads.gamepad1().leftBumper()
+            .toggleOnBecomesTrue()
             //open (0.2) is logo on left closed (0) is logo on right
-            open = !open;
-            if (open) {
+            .whenBecomesTrue(() -> {
                 Claw.INSTANCE.openServo.schedule();
-            } else {
+            })
+            .whenBecomesFalse(() -> {
                 Claw.INSTANCE.closeServo.schedule();
-            }
-        });
+            })
+        ;
         Gamepads.gamepad1().rightBumper().whenBecomesTrue(() -> {
             Claw.INSTANCE.moventurn().schedule();
         });
-        Gamepads.gamepad1().a().whenBecomesTrue(() -> {
-            Launcher.INSTANCE.inwards().schedule();
-        });
-        Gamepads.gamepad1().x().whenBecomesTrue(() -> {
-            Launcher.INSTANCE.outward().schedule();
-        });
+        // △-Y, ○-B, ×-A, □-X
+        // ####### stop #######
+        // inward ####### nothing
+        // ####### outward ######
+        Gamepads.gamepad1().x()
+            .toggleOnBecomesTrue()
+            .whenTrue(() -> {
+                Launcher.INSTANCE.inwards().schedule();
+            })
+            .whenFalse(() -> {
+                Launcher.INSTANCE.stop().schedule();
+            })
+        ;
+        Gamepads.gamepad1().a()
+            .toggleOnBecomesTrue()
+            .whenTrue(() -> {
+                Launcher.INSTANCE.outward().schedule();
+            })
+            .whenFalse(() -> {
+                Launcher.INSTANCE.stop().schedule();
+            })
+        ;
+
     }
 }
