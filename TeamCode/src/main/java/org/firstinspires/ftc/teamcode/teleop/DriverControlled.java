@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robot.Claw;
+import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
 
 import dev.nextftc.core.commands.Command;
@@ -35,6 +36,7 @@ public class DriverControlled extends NextFTCOpMode {
                 new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(Claw.INSTANCE),
                 new SubsystemComponent(Launcher.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -97,6 +99,14 @@ public class DriverControlled extends NextFTCOpMode {
                 Launcher.INSTANCE.stop().schedule();
             })
         ;
-
+        Gamepads.gamepad1().b()
+                .toggleOnBecomesTrue()
+                .whenTrue(() -> {
+                    Intake.INSTANCE.inward().schedule();
+                })
+                .whenFalse(() -> {
+                    Intake.INSTANCE.stop().schedule();
+                })
+        ;
     }
 }
