@@ -75,7 +75,7 @@ public class DriverControlled extends NextFTCOpMode {
             Claw.INSTANCE.moventurn().schedule();
         });
         // △-Y, ○-B, ×-A, □-X
-        // ####### stop #######
+        // ###### nothing #######
         // inward ####### nothing
         // ####### outward ######
         Gamepads.gamepad1().x()
