@@ -18,33 +18,22 @@ import dev.nextftc.hardware.impl.MotorEx;
 import dev.nextftc.hardware.positionable.SetPosition;
 import dev.nextftc.hardware.powerable.SetPower;
 
-public class Launcher implements Subsystem {
+public class Intake implements Subsystem {
 
-    public static final Launcher INSTANCE = new Launcher();
-    private Launcher() {}
-   private MotorEx motor1;
-   private MotorEx motor2;
+    public static final Intake INSTANCE = new Intake();
+    private Intake() {}
 
+    private MotorEx intakeMotor;
     public void init() {
-        motor1 = new MotorEx("BottomLaunch");
-        motor2 = new MotorEx("TopLaunch");
+        intakeMotor = new MotorEx("Intake-Motor");
     }
     public Command inwards() {
-        return new ParallelGroup(
-                new SetPower(motor1, 1),
-                new SetPower(motor2, 1)
-        );
+        return new SetPower(intakeMotor, 1);
     }
-    public Command outward() {
-        return new ParallelGroup(
-                new SetPower(motor1, -1),
-                new SetPower(motor2, -1)
-        );
+    public Command stop() {
+        return new SetPower(intakeMotor, 0);
     }
-    public Command stop(){
-        return new ParallelGroup(
-                new SetPower(motor1, 0),
-                new SetPower(motor2, 0)
-        );
+    public Command outward(){
+        return new SetPower(intakeMotor, -1);
     }
 }

@@ -6,6 +6,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robot.Claw;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
@@ -23,6 +24,8 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
+
+import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
 @TeleOp(name = "NextFTC Driver Controlled")
 public class DriverControlled extends NextFTCOpMode {
@@ -48,18 +51,16 @@ public class DriverControlled extends NextFTCOpMode {
     public void onInit() {
         Launcher.INSTANCE.init();
         Claw.INSTANCE.closeServo.schedule();
-
     }
-
 
     @Override
     public void onStartButtonPressed() {
+        follower().setStartingPose(startPose);
         Command driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY().negate(),
                 Gamepads.gamepad1().leftStickX(),
                 Gamepads.gamepad1().rightStickX()
         );
-
         driverControlled.schedule();
         Gamepads.gamepad1().leftBumper()
             .toggleOnBecomesTrue()
