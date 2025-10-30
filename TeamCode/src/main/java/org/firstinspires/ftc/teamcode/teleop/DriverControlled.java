@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static dev.nextftc.extensions.pedro.PedroComponent.follower;
+
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -40,10 +43,11 @@ public class DriverControlled extends NextFTCOpMode {
     private final MotorEx backLeftMotor = new MotorEx("Bottom-Left-Motor");
     private final MotorEx backRightMotor = new MotorEx("Bottom-Right-Motor");
     private boolean open = false;
-
+    private static final Pose startPose = new Pose(72, 72, Math.toRadians(0));
     @Override
     public void onInit() {
         Claw.INSTANCE.closeServo.schedule();
+        follower().setStartingPose(startPose);
     }
 
     @Override
