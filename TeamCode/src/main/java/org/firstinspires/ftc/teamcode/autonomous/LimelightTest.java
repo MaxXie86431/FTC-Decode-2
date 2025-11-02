@@ -30,18 +30,16 @@ public class LimelightTest extends OpMode {
     private String classNameToColor(String className) {
 
         switch (className.toLowerCase()) {
-            case "blue":
-                return "BLUE";
-            case "red":
-                return "RED";
-            case "yellow":
-                return "YELLOW";
+            case "green ball":
+                return "GREEN";
+            case "purple ball":
+                return "PURPLE";
             default:
                 return "unknown";
         }
     }
 
-    // returns List["BLUE", "RED", "YELLOW", ...] sorted left to right
+    // returns List["GREEN", "PURPLE", ...] sorted left to right
     public List<String> getDetectedBallsLeftToRight() {
         List<String> sortedColors = new ArrayList<>();
 
