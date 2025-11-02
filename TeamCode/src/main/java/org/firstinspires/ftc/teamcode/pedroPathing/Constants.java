@@ -44,6 +44,7 @@ public class Constants {
             .centripetalScaling(0.0012);
 
 
+
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .leftFrontMotorName("Top-Left-Motor")
@@ -55,7 +56,9 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .xVelocity(62.487)
-            .yVelocity(55.785);
+            .yVelocity(55.785)
+            .useBrakeModeInTeleOp(true);
+
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .distanceUnit(DistanceUnit.INCH)
