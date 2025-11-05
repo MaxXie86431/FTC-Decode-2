@@ -26,11 +26,19 @@ import dev.nextftc.hardware.impl.ServoEx;
 public class NextFTCPedroAuto extends NextFTCOpMode {
     private ServoEx servo = new ServoEx("Servo");
     // Define poses
-    private static final Pose startPose = new Pose(72, 72, Math.toRadians(0));
-    private static final Pose scorePose = new Pose(100, 100, Math.toRadians(0));
-    private static final Pose endPose = new Pose(30, 100);
-    private PathChain scorePreload;
-    private PathChain newPath;
+    private static final Pose startPose = new Pose(25, 127, Math.toRadians(135));
+    private static final Pose launchPose = new Pose(50, 85, Math.toRadians(125));
+    private static final Pose topRowEndPose = new Pose(15, 85, Math.toRadians(180));
+    private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
+    private static final Pose middleRowEndPose = new Pose(15, 60, Math.toRadians(180));
+    private static final Pose bottomRowStartPose = new Pose(50, 35, Math.toRadians(180));
+    private static final Pose bottomRowEndPose = new Pose(15, 35, Math.toRadians(180));
+
+    private PathChain initialLaunchPath;
+    private PathChain topRowPath;
+    private PathChain middleRowPath;
+
+    private PathChain bottomRowPath;
 
     {
         addComponents(
@@ -41,22 +49,32 @@ public class NextFTCPedroAuto extends NextFTCOpMode {
     //open (0.2) is logo on left closed (0) is logo on right
     private Command moveServo = new SetPosition(servo, 0.2).requires(this);
     private Command autonomousRoutine(){
-        return new ParallelGroup(
-                new SequentialGroup(
-                    new FollowPath(scorePreload),
-                    new FollowPath(newPath)
-                ),
-                moveServo
+        return new SequentialGroup(
+            new FollowPath(initialLaunchPath),
+            new FollowPath(topRowPath),
+            new FollowPath(middleRowPath)
         );
     }
     public void buildPaths() {
-        scorePreload = follower().pathBuilder()
-                .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+        initialLaunchPath = follower().pathBuilder()
+                .addPath(new BezierLine(startPose, launchPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading())
                 .build();
-        newPath = follower().pathBuilder()
-                .addPath(new BezierLine(scorePose, endPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+        topRowPath = follower().pathBuilder()
+                .addPath(new BezierLine(launchPose, topRowEndPose))
+                .addPath(new BezierLine(topRowEndPose, launchPose))
+                .addPath(new BezierLine(launchPose, middleRowStartPose))
+                .setLinearHeadingInterpolation(launchPose.getHeading(), topRowEndPose.getHeading())
+                .build();
+        middleRowPath = follower().pathBuilder()
+                .addPath(new BezierLine(middleRowStartPose, middleRowEndPose))
+                .addPath(new BezierLine(middleRowEndPose, launchPose))
+                .setLinearHeadingInterpolation(middleRowStartPose.getHeading(), middleRowEndPose.getHeading())
+                .build();
+        bottomRowPath = follower().pathBuilder()
+                .addPath(new BezierLine(bottomRowStartPose, bottomRowEndPose))
+                .addPath(new BezierLine(bottomRowEndPose, launchPose))
+                .setLinearHeadingInterpolation(bottomRowStartPose.getHeading(), bottomRowEndPose.getHeading())
                 .build();
     }
 

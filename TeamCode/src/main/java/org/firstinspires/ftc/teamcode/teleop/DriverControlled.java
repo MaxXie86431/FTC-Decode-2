@@ -53,6 +53,7 @@ public class DriverControlled extends NextFTCOpMode {
     public void onInit() {
         Launcher.INSTANCE.init();
         Claw.INSTANCE.closeServo.schedule();
+        Intake.INSTANCE.init();
     }
 
     @Override
@@ -60,8 +61,8 @@ public class DriverControlled extends NextFTCOpMode {
         follower().setStartingPose(startPose);
         Command driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY().negate(),
-                Gamepads.gamepad1().leftStickX(),
-                Gamepads.gamepad1().rightStickX()
+                Gamepads.gamepad1().leftStickX().negate(),
+                Gamepads.gamepad1().rightStickX().negate()
         );
         driverControlled.schedule();
         Gamepads.gamepad1().leftBumper()
@@ -78,17 +79,26 @@ public class DriverControlled extends NextFTCOpMode {
             Claw.INSTANCE.moventurn().schedule();
         });
         // △-Y, ○-B, ×-A, □-X
-        // ###### nothing #######
-        // inward ####### nothing
+        // ########### nothing #######
+        // intakeinward ####### nothing
         // ####### outward ######
         Gamepads.gamepad1().x()
             .toggleOnBecomesTrue()
             .whenTrue(() -> {
-                Launcher.INSTANCE.inwards().schedule();
+                Intake.INSTANCE.inwards().schedule();
             })
             .whenFalse(() -> {
-                Launcher.INSTANCE.stop().schedule();
+                Intake.INSTANCE.stop().schedule();
             })
+        ;
+        Gamepads.gamepad1().y()
+                .toggleOnBecomesTrue()
+                .whenTrue(() -> {
+                    Intake.INSTANCE.outward().schedule();
+                })
+                .whenFalse(() -> {
+                    Intake.INSTANCE.stop().schedule();
+                })
         ;
         Gamepads.gamepad1().a()
             .toggleOnBecomesTrue()
@@ -102,10 +112,10 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().b()
                 .toggleOnBecomesTrue()
                 .whenTrue(() -> {
-                    Intake.INSTANCE.inward().schedule();
+                    Launcher.INSTANCE.outward().schedule();
                 })
                 .whenFalse(() -> {
-                    Intake.INSTANCE.stop().schedule();
+                    Launcher.INSTANCE.stop().schedule();
                 })
         ;
     }
