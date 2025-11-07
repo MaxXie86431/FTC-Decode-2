@@ -28,6 +28,28 @@ public class Intake implements Subsystem {
         intakeMotor = new MotorEx("Intake-Motor");
     }
     public Command inwards() {
+        return new ParallelGroup(
+                new SetPower(intakeMotor, 1),
+                Intermediate.INSTANCE.rolldown()
+
+        );
+    }
+
+    public Command outward() {
+        return new ParallelGroup(
+            new SetPower(intakeMotor, -1),
+            Intermediate.INSTANCE.rollup()
+        );
+    }
+
+    public Command stop() {
+        return new ParallelGroup(
+                new SetPower(intakeMotor, 0),
+                Intermediate.INSTANCE.stop()
+        );
+    }
+    /*
+    public Command inwards() {
         return new SetPower(intakeMotor, 1);
     }
     public Command stop() {
@@ -36,4 +58,6 @@ public class Intake implements Subsystem {
     public Command outward(){
         return new SetPower(intakeMotor, -1);
     }
+
+     */
 }

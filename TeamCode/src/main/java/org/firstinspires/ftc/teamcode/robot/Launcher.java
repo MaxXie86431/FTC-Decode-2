@@ -22,34 +22,40 @@ public class Launcher implements Subsystem {
 
     public static final Launcher INSTANCE = new Launcher();
     private Launcher() {}
-   private MotorEx motor1;
-   private MotorEx motor2;
-   private MotorEx motor3;
+    private MotorEx motor1;
+    private MotorEx motor2;
+    private MotorEx motor3;
 
     public void init() {
         motor1 = new MotorEx("BottomLaunch");
         motor2 = new MotorEx("TopLaunch");
-        //motor3 = new MotorEx("Intermediate-Motor");
     }
     public Command inwards() {
         return new ParallelGroup(
-                new SetPower(motor1, 1),
-                new SetPower(motor2, 1)
-                //new SetPower(motor3, 1)
+                new ParallelGroup(
+                    new SetPower(motor1, -1),
+                    new SetPower(motor2, -1)
+        ),
+                Intermediate.INSTANCE.rolldown()
+
         );
     }
     public Command outward() {
         return new ParallelGroup(
-                new SetPower(motor1, -1),
-                new SetPower(motor2, -1)
-                //new SetPower(motor3, -1)
+                new ParallelGroup(
+                        new SetPower(motor1, 1),
+                        new SetPower(motor2, 1)
+                ),
+                Intermediate.INSTANCE.rollup()
         );
     }
     public Command stop(){
         return new ParallelGroup(
-                new SetPower(motor1, 0),
-                new SetPower(motor2, 0)
-                //new SetPower(motor3, 0)
+                new ParallelGroup(
+                        new SetPower(motor1, 0),
+                        new SetPower(motor2, 0)
+                ),
+                Intermediate.INSTANCE.stop()
         );
     }
 }

@@ -10,6 +10,7 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robot.Claw;
 import org.firstinspires.ftc.teamcode.robot.Intake;
+import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
 
 import dev.nextftc.core.commands.Command;
@@ -37,6 +38,7 @@ public class DriverControlled extends NextFTCOpMode {
                 new SubsystemComponent(Claw.INSTANCE),
                 new SubsystemComponent(Launcher.INSTANCE),
                 new SubsystemComponent(Intake.INSTANCE),
+                new SubsystemComponent(Intermediate.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -52,8 +54,8 @@ public class DriverControlled extends NextFTCOpMode {
     @Override
     public void onInit() {
         Launcher.INSTANCE.init();
-        Claw.INSTANCE.closeServo.schedule();
         Intake.INSTANCE.init();
+        Intermediate.INSTANCE.init();
     }
 
     @Override
@@ -62,9 +64,11 @@ public class DriverControlled extends NextFTCOpMode {
         Command driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY().negate(),
                 Gamepads.gamepad1().leftStickX().negate(),
-                Gamepads.gamepad1().rightStickX().negate()
+                Gamepads.gamepad1().rightStickX().negate(),
+                false
         );
         driverControlled.schedule();
+        /*
         Gamepads.gamepad1().leftBumper()
             .toggleOnBecomesTrue()
             //open (0.2) is logo on left closed (0) is logo on right
@@ -78,6 +82,8 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().rightBumper().whenBecomesTrue(() -> {
             Claw.INSTANCE.moventurn().schedule();
         });
+        */
+
         // △-Y, ○-B, ×-A, □-X
         // ########### nothing #######
         // intakeinward ####### nothing
@@ -112,7 +118,7 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().b()
                 .toggleOnBecomesTrue()
                 .whenTrue(() -> {
-                    Launcher.INSTANCE.outward().schedule();
+                    Launcher.INSTANCE.inwards().schedule();
                 })
                 .whenFalse(() -> {
                     Launcher.INSTANCE.stop().schedule();
