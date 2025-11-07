@@ -85,9 +85,9 @@ public class DriverControlled extends NextFTCOpMode {
         */
 
         // △-Y, ○-B, ×-A, □-X
-        // ########### nothing #######
-        // intakeinward ####### nothing
-        // ####### outward ######
+        // ######## nothing #######
+        // iinward ######## nothing
+        // ####### ioutward ######
         Gamepads.gamepad1().x()
             .toggleOnBecomesTrue()
             .whenTrue(() -> {
