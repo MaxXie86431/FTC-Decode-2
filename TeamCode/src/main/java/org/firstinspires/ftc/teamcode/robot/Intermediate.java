@@ -19,10 +19,10 @@ public class Intermediate implements Subsystem{
         roller = new MotorEx("IntermediateMotor");
     }
     public Command rollup() {
-        return new SetPower(roller,-1);
+        return new SetPower(roller,1);
     }
     public Command rolldown() {
-        return new SetPower(roller,1);
+        return new SetPower(roller,-1);
     }
 
     public Command stop(){

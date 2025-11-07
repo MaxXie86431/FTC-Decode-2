@@ -8,6 +8,9 @@ import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+import java.time.Duration;
+
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.core.commands.Command;
@@ -31,22 +34,29 @@ public class Launcher implements Subsystem {
         motor2 = new MotorEx("TopLaunch");
     }
     public Command inwards() {
-        return new ParallelGroup(
+        return new SequentialGroup(
+                Intake.INSTANCE.stop(),
                 new ParallelGroup(
-                    new SetPower(motor1, -1),
-                    new SetPower(motor2, -1)
-        ),
-                Intermediate.INSTANCE.rolldown()
-
+                        new ParallelGroup(
+                                new SetPower(motor1, 0.2),
+                                new SetPower(motor2, 0.2)
+                        )
+                )
         );
     }
     public Command outward() {
-        return new ParallelGroup(
+        return new SequentialGroup(
+            Intake.INSTANCE.stop(),
+            new ParallelGroup(
                 new ParallelGroup(
-                        new SetPower(motor1, 1),
-                        new SetPower(motor2, 1)
+                        new SetPower(motor1, -1),
+                        new SetPower(motor2, -1)
                 ),
-                Intermediate.INSTANCE.rollup()
+                new SequentialGroup(
+                    new Delay(1),
+                    Intermediate.INSTANCE.rollup()
+                )
+            )
         );
     }
     public Command stop(){

@@ -64,8 +64,7 @@ public class DriverControlled extends NextFTCOpMode {
         Command driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY().negate(),
                 Gamepads.gamepad1().leftStickX().negate(),
-                Gamepads.gamepad1().rightStickX().negate(),
-                false
+                Gamepads.gamepad1().rightStickX().negate()
         );
         driverControlled.schedule();
         /*
@@ -91,7 +90,7 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().x()
             .toggleOnBecomesTrue()
             .whenTrue(() -> {
-                Intake.INSTANCE.inwards().schedule();
+                Intake.INSTANCE.outward().schedule();
             })
             .whenFalse(() -> {
                 Intake.INSTANCE.stop().schedule();
@@ -100,7 +99,7 @@ public class DriverControlled extends NextFTCOpMode {
         Gamepads.gamepad1().y()
                 .toggleOnBecomesTrue()
                 .whenTrue(() -> {
-                    Intake.INSTANCE.outward().schedule();
+                    Intake.INSTANCE.inwards().schedule();
                 })
                 .whenFalse(() -> {
                     Intake.INSTANCE.stop().schedule();
