@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.pedropathing.geometry.Pose;
@@ -18,9 +21,11 @@ import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.PedroDriverControlled;
+import dev.nextftc.extensions.pedro.TurnBy;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
@@ -28,10 +33,14 @@ import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
-
+@Configurable
 @TeleOp(name = "NextFTC Driver Controlled")
 public class DriverControlled extends NextFTCOpMode {
-
+    private Limelight3A Limelight3A;
+    public static double anglefactor=1.6;
+    public static double limelightMountAngleDegrees = 0;
+    public static double limelightLensHeightInches = 13.0;
+    public static double goalHeightInches = 29.5;
     public DriverControlled() {
         addComponents(
                 new PedroComponent(Constants::createFollower),
@@ -56,10 +65,17 @@ public class DriverControlled extends NextFTCOpMode {
         Launcher.INSTANCE.init();
         Intake.INSTANCE.init();
         Intermediate.INSTANCE.init();
+        Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        Limelight3A.pipelineSwitch(1); // april tag 12 pipeline
+    }
+
+    private Command turns(double angle){
+        return new TurnBy(Angle.fromDeg(angle));
     }
 
     @Override
     public void onStartButtonPressed() {
+        Limelight3A.start();
         follower().setStartingPose(startPose);
         Command driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY().negate(),
@@ -87,17 +103,15 @@ public class DriverControlled extends NextFTCOpMode {
         // ######## nothing #######
         // iinward ######## nothing
         // ####### ioutward ######
-        Gamepads.gamepad1().x()
-            .toggleOnBecomesTrue()
-            .whenTrue(() -> {
-                Intake.INSTANCE.outward().schedule();
-            })
-            .whenFalse(() -> {
-                Intake.INSTANCE.stop().schedule();
-            })
+        Gamepads.gamepad1().rightBumper()
+                .whenTrue(() -> {
+                    Intake.INSTANCE.outward().schedule();
+                })
+                .whenFalse(() -> {
+                    Intake.INSTANCE.stop().schedule();
+                })
         ;
-        Gamepads.gamepad1().y()
-                .toggleOnBecomesTrue()
+        Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
                 .whenTrue(() -> {
                     Intake.INSTANCE.inwards().schedule();
                 })
@@ -105,17 +119,15 @@ public class DriverControlled extends NextFTCOpMode {
                     Intake.INSTANCE.stop().schedule();
                 })
         ;
-        Gamepads.gamepad1().a()
-            .toggleOnBecomesTrue()
-            .whenTrue(() -> {
-                Launcher.INSTANCE.outward().schedule();
-            })
-            .whenFalse(() -> {
-                Launcher.INSTANCE.stop().schedule();
-            })
+        Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
+                .whenTrue(() -> {
+                    Launcher.INSTANCE.outward(-1, 1.5).schedule();
+                })
+                .whenFalse(() -> {
+                    Launcher.INSTANCE.stop().schedule();
+                })
         ;
-        Gamepads.gamepad1().b()
-                .toggleOnBecomesTrue()
+        Gamepads.gamepad1().leftBumper()
                 .whenTrue(() -> {
                     Launcher.INSTANCE.inwards().schedule();
                 })
@@ -123,5 +135,33 @@ public class DriverControlled extends NextFTCOpMode {
                     Launcher.INSTANCE.stop().schedule();
                 })
         ;
+        Gamepads.gamepad1().dpadUp()
+                .whenBecomesTrue(() -> {
+                    Launcher.INSTANCE.stop().schedule();
+                    Intermediate.INSTANCE.stop().schedule();
+                    Intake.INSTANCE.stop().schedule();
+                });
+
+        /*
+        Gamepads.gamepad1().dpadUp()
+                .whenBecomesTrue(() -> {
+                    LLResult LLResult = Limelight3A.getLatestResult();
+                    if (LLResult != null && LLResult.isValid()) {
+                        double angle = LLResult.getTx();
+                        double verticalangle = LLResult.getTy();
+                        double angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
+                        double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
+                        telemetry.addData("Target X", angle);
+                        telemetry.addData("Target Y", angleToGoal);
+                        telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
+                        telemetry.update();
+
+                        Command turnCommand = turns(-anglefactor*angle);
+                        turnCommand.schedule();
+
+                    }
+                });
+
+         */
     }
 }

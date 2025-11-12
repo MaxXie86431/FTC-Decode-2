@@ -793,12 +793,9 @@ class TranslationalTuner extends OpMode {
     private void updateSignals() {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
         error = follower.getTranslationalError();
-        telemetryM.addData("X Error: ", error.getXComponent());
-        telemetryM.addData("Y Error: ", error.getYComponent());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("X Error: ", error.getXComponent());
-        telemetryM.addData("Y Error: ", error.getYComponent());
-        telemetryM.addData("Goal: ", 0);
+        telemetryM.addData("X Error", error.getXComponent());
+        telemetryM.addData("Y Error", error.getYComponent());
+        telemetryM.addData("Goal", 0);
         telemetryM.update();
         telemetryM.update();
 
@@ -882,11 +879,8 @@ class HeadingTuner extends OpMode {
 
     private void updateSignals() {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
-        telemetryM.addData("Error: ", follower.getHeadingError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("Error: ", follower.getHeadingError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.update();
+        telemetryM.addData("Heading Error", follower.getHeadingError());
+        telemetryM.addData("Goal", 0);
         telemetryM.update();
 
     }
@@ -979,11 +973,8 @@ class DriveTuner extends OpMode {
 
     private void updateSignals() {
         //telemetryM.addData("Time", timer.getElapsedTimeSeconds());
-        telemetryM.addData("Error: ", follower.getDriveError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.addData("Error: ", follower.getDriveError());
-        telemetryM.addData("Goal: ", 0);
-        telemetryM.update();
+        telemetryM.addData("Drive Error", follower.getDriveError());
+        telemetryM.addData("Goal", 0);
         telemetryM.update();
 
     }

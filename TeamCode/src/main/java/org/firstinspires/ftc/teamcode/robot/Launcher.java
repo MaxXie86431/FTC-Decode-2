@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -21,6 +22,7 @@ import dev.nextftc.hardware.impl.MotorEx;
 import dev.nextftc.hardware.positionable.SetPosition;
 import dev.nextftc.hardware.powerable.SetPower;
 
+@Configurable
 public class Launcher implements Subsystem {
 
     public static final Launcher INSTANCE = new Launcher();
@@ -35,29 +37,27 @@ public class Launcher implements Subsystem {
     }
     public Command inwards() {
         return new SequentialGroup(
-                Intake.INSTANCE.stop(),
                 new ParallelGroup(
                         new ParallelGroup(
                                 new SetPower(motor1, 0.2),
                                 new SetPower(motor2, 0.2)
                         )
                 )
-        );
+        ).requires(this);
     }
-    public Command outward() {
+    public Command outward(double power, double delay) {
         return new SequentialGroup(
-            Intake.INSTANCE.stop(),
             new ParallelGroup(
                 new ParallelGroup(
-                        new SetPower(motor1, -1),
-                        new SetPower(motor2, -1)
+                        new SetPower(motor1, power),
+                        new SetPower(motor2, power)
                 ),
                 new SequentialGroup(
-                    new Delay(1),
+                    new Delay(delay),
                     Intermediate.INSTANCE.rollup()
                 )
             )
-        );
+        ).requires(this);
     }
     public Command stop(){
         return new ParallelGroup(
@@ -66,6 +66,6 @@ public class Launcher implements Subsystem {
                         new SetPower(motor2, 0)
                 ),
                 Intermediate.INSTANCE.stop()
-        );
+        ).requires(this);
     }
 }
