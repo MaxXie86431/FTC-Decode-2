@@ -13,6 +13,7 @@ import java.time.Duration;
 
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
+import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.groups.SequentialGroup;
@@ -26,26 +27,30 @@ import dev.nextftc.hardware.powerable.SetPower;
 public class Launcher implements Subsystem {
 
     public static final Launcher INSTANCE = new Launcher();
-    private Launcher() {}
-    private MotorEx motor1;
-    private MotorEx motor2;
-    private MotorEx motor3;
-
-    public void init() {
-        motor1 = new MotorEx("BottomLaunch");
-        motor2 = new MotorEx("TopLaunch");
+    private Launcher() {
     }
-    public Command inwards() {
-        return new SequentialGroup(
-                new ParallelGroup(
-                        new ParallelGroup(
-                                new SetPower(motor1, 0.2),
-                                new SetPower(motor2, 0.2)
-                        )
-                )
+    private MotorEx motor;
+    public static double farLaunchPower = 0.9;
+
+    @Override
+    public void initialize() {
+        motor = new MotorEx("BottomLaunch");
+        farLaunchPower=0.9;
+    }
+    public Command inward() {
+        return new ParallelGroup(
+                Intermediate.INSTANCE.rolldown(),
+                new SetPower(motor, -0.2)
         ).requires(this);
     }
-    public Command outward(double power, double delay) {
+    public Command outward(double delay) {
+        farLaunchPower = Math.abs(farLaunchPower);
+        return new SequentialGroup(
+                new SetPower(motor, farLaunchPower),
+                new Delay(delay),
+                Intermediate.INSTANCE.rollup()
+        ).requires(this);
+        /*
         return new SequentialGroup(
             new ParallelGroup(
                 new ParallelGroup(
@@ -58,14 +63,40 @@ public class Launcher implements Subsystem {
                 )
             )
         ).requires(this);
+         */
+        //return new SetPower(motor, power).requires(this);
     }
     public Command stop(){
         return new ParallelGroup(
-                new ParallelGroup(
-                        new SetPower(motor1, 0),
-                        new SetPower(motor2, 0)
-                ),
+                new SetPower(motor, 0),
                 Intermediate.INSTANCE.stop()
         ).requires(this);
     }
+
+    public Command increasePower() {
+
+        return new InstantCommand(() -> {
+            if (farLaunchPower<1) {
+                farLaunchPower += 0.1;
+            } // change field here
+        });
+    }
+
+    public Command decreasePower() {
+        return new InstantCommand(() -> {
+            if (farLaunchPower>0) {
+                farLaunchPower -= 0.1;
+            } // change field here
+        });
+    }
+
+    public double getFarLaunchPower() {
+        return farLaunchPower;
+    }
+
+    public double getrpm() {
+        return (motor.getRawTicks()/28)*60;
+    }
+
+
 }

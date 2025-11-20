@@ -108,9 +108,6 @@ public class outred extends NextFTCOpMode {
         // Initialize the follower with your constants
         follower().setStartingPose(startPose);
         buildPaths();
-        Launcher.INSTANCE.init();
-        Intake.INSTANCE.init();
-        Intermediate.INSTANCE.init();
     }
 
 

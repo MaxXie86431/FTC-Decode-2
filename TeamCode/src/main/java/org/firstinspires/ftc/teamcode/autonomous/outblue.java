@@ -7,6 +7,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -24,13 +25,13 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
+import org.firstinspires.ftc.teamcode.robot.Motor;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.impl.ServoEx;
 @Configurable
 @Autonomous(name = "Out Auto Blue")
 public class outblue extends NextFTCOpMode {
-    private ServoEx servo = new ServoEx("Servo");
     // Define poses
     private static final Pose startPose = new Pose(25, 125, Math.toRadians(315));
     private static final Pose launchPose = new Pose(60, 84, Math.toRadians(315));
@@ -40,7 +41,6 @@ public class outblue extends NextFTCOpMode {
     private static final Pose middleRowEndPose = new Pose(40, 60, Math.toRadians(180));
     private static final Pose bottomRowStartPose = new Pose(50, 35, Math.toRadians(180));
     private static final Pose bottomRowEndPose = new Pose(40, 35, Math.toRadians(180));
-    public static double offset = 20;
 
     private PathChain initialLaunchPath;
     private PathChain initialOut;
@@ -53,30 +53,23 @@ public class outblue extends NextFTCOpMode {
     {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Launcher.INSTANCE),
-                new SubsystemComponent(Intake.INSTANCE),
-                new SubsystemComponent(Intermediate.INSTANCE),
+                new SubsystemComponent(Launcher.INSTANCE, Intake.INSTANCE, Intermediate.INSTANCE, Motor.INSTANCE),
                 BulkReadComponent.INSTANCE
         );
     }
     //open (0.2) is logo on left closed (0) is logo on right
     //private Command moveServo = new SetPosition(servo, 0.2).requires(this);
+
     private Command autonomousRoutine(){
         return new SequentialGroup(
                 new FollowPath(initialLaunchPath),
-                new FollowPath(outtaTheWayPath),
-                new ParallelGroup(
-                        Intake.INSTANCE.rolltest(),
-                        new TurnBy(Angle.fromDeg(180)),
-                        Launcher.INSTANCE.outward(-1,2)
-                )
-
-            /*
-            new FollowPath(topRowPath),
-            new FollowPath(middleRowPath)
-             */
-        );
+                Motor.INSTANCE.launchOut,
+                new Delay(2),
+                Motor.INSTANCE.stop,
+                Motor.INSTANCE.launchIn
+            );
     }
+
     public void buildPaths() {
         initialOut = follower().pathBuilder()
                 .addPath(new BezierLine(startPose,outtatheWayPose))
@@ -112,9 +105,6 @@ public class outblue extends NextFTCOpMode {
         // Initialize the follower with your constants
         follower().setStartingPose(startPose);
         buildPaths();
-        Launcher.INSTANCE.init();
-        Intake.INSTANCE.init();
-        Intermediate.INSTANCE.init();
     }
 
 

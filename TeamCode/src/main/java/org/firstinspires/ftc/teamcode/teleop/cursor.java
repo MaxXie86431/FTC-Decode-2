@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+import dev.nextftc.bindings.Button;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.extensions.pedro.PedroComponent;
@@ -12,11 +13,16 @@ import dev.nextftc.extensions.pedro.PedroDriverControlled;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
+import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
+import org.firstinspires.ftc.teamcode.motorwrappers.teleopMotor;
 
 @TeleOp(name="cursor")
 public class cursor extends NextFTCOpMode {
     
-    private DcMotorEx motor;
+    //private DcMotorEx motor;
+    private MotorEx launchMotor = new MotorEx("BottomLaunch");
+    private MotorEx intakeMotor = new MotorEx("IntakeMotor");
 
     public cursor() {
         addComponents(
@@ -26,10 +32,6 @@ public class cursor extends NextFTCOpMode {
         );
     }
 
-    @Override
-    public void onInit() {
-        motor = hardwareMap.get(DcMotorEx.class, "BottomLaunch");
-    }
     
     @Override
     public void onStartButtonPressed() {
@@ -40,16 +42,18 @@ public class cursor extends NextFTCOpMode {
         );
         driverControlled.schedule();
     }
-    
+
+
+
+
     @Override
     public void onUpdate() {
-        // This runs every loop cycle, like loop() in regular OpMode
-        if (Gamepads.gamepad1().a().get()) {
-            motor.setPower(1.0);
-        } else if (Gamepads.gamepad1().b().get()) {
-            motor.setPower(-1.0);
-        } else {
-            motor.setPower(0.0);
-        }
+        teleopMotor.buttonMotor(launchMotor,1,-0.2,Gamepads.gamepad1().x(),Gamepads.gamepad1().y());
+        teleopMotor.buttonMotor(intakeMotor,1,-1,Gamepads.gamepad1().a(),Gamepads.gamepad1().b());
+
+
+
     }
+
+
 }

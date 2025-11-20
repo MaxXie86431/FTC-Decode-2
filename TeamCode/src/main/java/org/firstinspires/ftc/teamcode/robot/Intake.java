@@ -24,10 +24,11 @@ public class Intake implements Subsystem {
     private Intake() {}
 
     private MotorEx intakeMotor;
-    public void init() {
-        intakeMotor = new MotorEx("Intake-Motor");
+    @Override
+    public void initialize() {
+        intakeMotor = new MotorEx("IntakeMotor");
     }
-    public Command inwards() {
+    public Command inward() {
         return new ParallelGroup(
                 new SetPower(intakeMotor, 1),
                 Intermediate.INSTANCE.rollup()

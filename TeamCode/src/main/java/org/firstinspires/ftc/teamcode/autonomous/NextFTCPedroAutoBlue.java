@@ -64,7 +64,7 @@ public class NextFTCPedroAutoBlue extends NextFTCOpMode {
                         new SequentialGroup(
                             new FollowPath(initialLaunchPath),
                             new SequentialGroup(
-                                Launcher.INSTANCE.outward(-0.8,2),
+                                Launcher.INSTANCE.outward(2),
                                 new Delay(3)
                             )
                         ),
@@ -110,9 +110,6 @@ public class NextFTCPedroAutoBlue extends NextFTCOpMode {
         // Initialize the follower with your constants
         follower().setStartingPose(startPose);
         buildPaths();
-        Launcher.INSTANCE.init();
-        Intake.INSTANCE.init();
-        Intermediate.INSTANCE.init();
     }
 
 

@@ -52,25 +52,13 @@ public class motorextest extends NextFTCOpMode {
         );
         driverControlled.schedule();
 
-        Gamepads.gamepad1().a()
-                .whenTrue(() -> {
-                    //motor.setPower(1);
-                    out.schedule();
-        })
-                .whenFalse(() -> {
-                    //motor.setPower(0);
-                    zero.schedule();
-                });
+        Gamepads.gamepad1().a().toggleOnBecomesTrue()
+                .whenBecomesTrue(out)
+                .whenBecomesFalse(zero);
 
         Gamepads.gamepad1().b()
-                .whenTrue(() -> {
-                    //motor.setPower(-1);
-                    in.schedule();
-                })
-                .whenFalse(() -> {
-                    //motor.setPower(0);
-                    zero.schedule();
-                });
+                .whenTrue(in)
+                .whenFalse(zero);
     }
 
 

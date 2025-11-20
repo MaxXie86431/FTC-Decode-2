@@ -62,9 +62,6 @@ public class DriverControlled extends NextFTCOpMode {
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(0));
     @Override
     public void onInit() {
-        Launcher.INSTANCE.init();
-        Intake.INSTANCE.init();
-        Intermediate.INSTANCE.init();
         Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Limelight3A.pipelineSwitch(1); // april tag 12 pipeline
     }
@@ -113,7 +110,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
                 .whenTrue(() -> {
-                    Intake.INSTANCE.inwards().schedule();
+                    Intake.INSTANCE.inward().schedule();
                 })
                 .whenFalse(() -> {
                     Intake.INSTANCE.stop().schedule();
@@ -121,7 +118,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenTrue(() -> {
-                    Launcher.INSTANCE.outward(-1, 1.5).schedule();
+                    Launcher.INSTANCE.outward(1.5).schedule();
                 })
                 .whenFalse(() -> {
                     Launcher.INSTANCE.stop().schedule();
@@ -129,7 +126,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().leftBumper()
                 .whenTrue(() -> {
-                    Launcher.INSTANCE.inwards().schedule();
+                    Launcher.INSTANCE.inward().schedule();
                 })
                 .whenFalse(() -> {
                     Launcher.INSTANCE.stop().schedule();

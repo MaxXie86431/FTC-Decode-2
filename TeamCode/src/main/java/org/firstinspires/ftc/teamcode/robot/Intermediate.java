@@ -15,7 +15,8 @@ public class Intermediate implements Subsystem{
     private Intermediate() {}
     private MotorEx roller;
 
-    public void init() {
+    @Override
+    public void initialize() {
         roller = new MotorEx("IntermediateMotor");
     }
     public Command rollup() {
