@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelDeadlineGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.BindingsComponent;
@@ -59,26 +61,40 @@ public class DriverControlled extends NextFTCOpMode {
     private final MotorEx backLeftMotor = new MotorEx("Bottom-Left-Motor");
     private final MotorEx backRightMotor = new MotorEx("Bottom-Right-Motor");
     private boolean open = false;
+    private Command driverControlled = new PedroDriverControlled(
+            Gamepads.gamepad1().leftStickY().negate(),
+            Gamepads.gamepad1().leftStickX().negate(),
+            Gamepads.gamepad1().rightStickX().negate()
+    );
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(0));
     @Override
     public void onInit() {
-        Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-        Limelight3A.pipelineSwitch(1); // april tag 12 pipeline
+        Launcher.INSTANCE.init();
+        Intake.INSTANCE.init();
+        Intermediate.INSTANCE.init();
+        //Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        //Limelight3A.pipelineSwitch(1); // april tag 12 pipeline
+
     }
 
     private Command turns(double angle){
-        return new TurnBy(Angle.fromDeg(angle));
+        /*
+        return new SequentialGroup(
+                new ParallelDeadlineGroup(
+                    new Delay(3),
+                    new TurnBy(Angle.fromDeg(angle))
+                ,
+                */
+        return new SequentialGroup(
+                new TurnBy(Angle.fromDeg(angle)).endAfter(2),
+                driverControlled
+        );
     }
 
     @Override
     public void onStartButtonPressed() {
-        Limelight3A.start();
+        //Limelight3A.start();
         follower().setStartingPose(startPose);
-        Command driverControlled = new PedroDriverControlled(
-                Gamepads.gamepad1().leftStickY().negate(),
-                Gamepads.gamepad1().leftStickX().negate(),
-                Gamepads.gamepad1().rightStickX().negate()
-        );
         driverControlled.schedule();
         /*
         Gamepads.gamepad1().leftBumper()
@@ -110,7 +126,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
                 .whenTrue(() -> {
-                    Intake.INSTANCE.inward().schedule();
+                    Intake.INSTANCE.inwards().schedule();
                 })
                 .whenFalse(() -> {
                     Intake.INSTANCE.stop().schedule();
@@ -118,7 +134,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenTrue(() -> {
-                    Launcher.INSTANCE.outward(1.5).schedule();
+                    Launcher.INSTANCE.outward(-1, 1.5).schedule();
                 })
                 .whenFalse(() -> {
                     Launcher.INSTANCE.stop().schedule();
@@ -126,7 +142,7 @@ public class DriverControlled extends NextFTCOpMode {
         ;
         Gamepads.gamepad1().leftBumper()
                 .whenTrue(() -> {
-                    Launcher.INSTANCE.inward().schedule();
+                    Launcher.INSTANCE.inwards().schedule();
                 })
                 .whenFalse(() -> {
                     Launcher.INSTANCE.stop().schedule();
@@ -138,7 +154,6 @@ public class DriverControlled extends NextFTCOpMode {
                     Intermediate.INSTANCE.stop().schedule();
                     Intake.INSTANCE.stop().schedule();
                 });
-
         /*
         Gamepads.gamepad1().dpadUp()
                 .whenBecomesTrue(() -> {
@@ -158,7 +173,6 @@ public class DriverControlled extends NextFTCOpMode {
 
                     }
                 });
-
-         */
+        */
     }
 }
