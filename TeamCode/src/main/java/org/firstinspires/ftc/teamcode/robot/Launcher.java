@@ -30,23 +30,24 @@ public class Launcher implements Subsystem {
     private Launcher() {
     }
     private MotorEx motor;
-    public static double farLaunchPower = 0.9;
+    public static double closeLaunchPower;
+    public static double farLaunchPower;
 
     @Override
     public void initialize() {
         motor = new MotorEx("BottomLaunch");
-        farLaunchPower=0.9;
+        closeLaunchPower = 0.8;
+        farLaunchPower=1;
     }
     public Command inward() {
         return new ParallelGroup(
                 Intermediate.INSTANCE.rolldown(),
-                new SetPower(motor, -0.2)
+                new SetPower(motor, -1)
         ).requires(this);
     }
-    public Command outward(double delay) {
-        farLaunchPower = Math.abs(farLaunchPower);
+    public Command outward(double power, double delay) {
         return new SequentialGroup(
-                new SetPower(motor, farLaunchPower),
+                new SetPower(motor, power),
                 new Delay(delay),
                 Intermediate.INSTANCE.rollup()
         ).requires(this);
@@ -66,6 +67,10 @@ public class Launcher implements Subsystem {
          */
         //return new SetPower(motor, power).requires(this);
     }
+
+    public Command rawLaunch(double power) {
+        return new SetPower(motor,power).requires(this);
+    }
     public Command stop(){
         return new ParallelGroup(
                 new SetPower(motor, 0),
@@ -73,20 +78,36 @@ public class Launcher implements Subsystem {
         ).requires(this);
     }
 
-    public Command increasePower() {
+    public Command increaseFarPower() {
 
         return new InstantCommand(() -> {
             if (farLaunchPower<1) {
-                farLaunchPower += 0.1;
+                farLaunchPower += 0.05;
             } // change field here
         });
     }
 
-    public Command decreasePower() {
+    public Command decreaseFarPower() {
         return new InstantCommand(() -> {
-            if (farLaunchPower>0) {
-                farLaunchPower -= 0.1;
+            if (farLaunchPower>0.05) {
+                farLaunchPower -= 0.05;
+            }
+        });
+    }
+
+    public Command increaseClosePower() {
+
+        return new InstantCommand(() -> {
+            if (closeLaunchPower<1) {
+                closeLaunchPower += 0.05;
             } // change field here
+        });
+    }
+    public Command decreaseClosePower() {
+        return new InstantCommand(() -> {
+            if (closeLaunchPower>0.05) {
+                closeLaunchPower -= 0.05;
+            }
         });
     }
 

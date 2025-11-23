@@ -7,8 +7,8 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.SequentialGroup;
-import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
@@ -22,57 +22,80 @@ import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
-import dev.nextftc.hardware.impl.ServoEx;
-import kotlin.time.Instant;
 
 @Configurable
-@Autonomous(name = "Out Auto Red")
+@Autonomous(name = "Close Triangle Red Auto")
 public class outred extends NextFTCOpMode {
-    private ServoEx servo = new ServoEx("Servo");
     // Define poses
     private static final Pose startPose = new Pose(119, 125, Math.toRadians(225));
-    private static final Pose launchPose = new Pose(84, 84, Math.toRadians(225));
-    private static final Pose outtatheWayPose = new Pose(94,60,225);
-    private static final Pose topRowEndPose = new Pose(15, 85, Math.toRadians(180));
+    private static final Pose launchPose = new Pose(84, 84.3, Math.toRadians(225));
+    private static final Pose outtatheWayPose = new Pose(94,65, Math.toRadians(300));
+    private static final Pose parkPose = new Pose(38.5,34,225);
+    private static final Pose topRowEndPose = new Pose(20, 84.35, Math.toRadians(180));
     private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
-    private static final Pose middleRowEndPose = new Pose(15, 60, Math.toRadians(180));
-    private static final Pose bottomRowStartPose = new Pose(50, 35, Math.toRadians(180));
-    private static final Pose bottomRowEndPose = new Pose(15, 35, Math.toRadians(180));
-    public static double offset = 20;
+    private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
+    private static final Pose bottomRowStartPose = new Pose(50, 36, Math.toRadians(180));
+    private static final Pose bottomRowEndPose = new Pose(20, 36, Math.toRadians(180));
+    public static double delay = 2;
+    public static double betweenBallsDelay = 0.2;
+    public static double intermediateDelay = 1;
+    public static double afterBallsDelay = 3;
+    public static double power = 0.75;
 
-    private PathChain initialLaunchPath;
-    private PathChain initialOut;
-    private PathChain outtaTheWayPath;
-    private PathChain topRowPath;
-    private PathChain middleRowPath;
+    private PathChain initialLaunchPath, initialOut, outtaTheWayPath, topRowPath, middleRowPath, bottomRowPath, parkPath;
+    public static Pose autoPose;
 
-    private PathChain bottomRowPath;
 
     {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Launcher.INSTANCE),
-                new SubsystemComponent(Intake.INSTANCE),
-                new SubsystemComponent(Intermediate.INSTANCE),
+                new SubsystemComponent(Launcher.INSTANCE, Intake.INSTANCE, Intermediate.INSTANCE),
                 BulkReadComponent.INSTANCE
         );
     }
     //open (0.2) is logo on left closed (0) is logo on right
     //private Command moveServo = new SetPosition(servo, 0.2).requires(this);
+
     private Command autonomousRoutine(){
         return new SequentialGroup(
-            new FollowPath(initialOut),
-            new InstantCommand(() -> {telemetry.addData("start stuff", "telemetry test"); telemetry.update();}),
-            Intake.INSTANCE.outward().endAfter(3),
-            new InstantCommand(() -> {telemetry.addData("next command", "should stop"); telemetry.update();}),
-            Intake.INSTANCE.stop()
+                new FollowPath(initialLaunchPath),
+                Launcher.INSTANCE.outward(power,delay),
+                new Delay(betweenBallsDelay),
+                Intermediate.INSTANCE.stop(),
+                new Delay(intermediateDelay),
+                Launcher.INSTANCE.outward(power,delay),
+                new Delay(betweenBallsDelay),
+                Intermediate.INSTANCE.stop(),
+                new Delay(intermediateDelay),
+                Launcher.INSTANCE.outward(power,delay),
+                Intake.INSTANCE.rawRoll(),
+                new Delay(afterBallsDelay),
+                Launcher.INSTANCE.stop(),
+                Intake.INSTANCE.stop(),
+                new FollowPath(outtaTheWayPath)
+                /*
+                Intake.INSTANCE.inward(),
+                new FollowPath(topRowPath),
+                Launcher.INSTANCE.outward(1,1),
+                new Delay(2),
+                Launcher.INSTANCE.stop(),
+                new FollowPath(middleRowPath),
+                Launcher.INSTANCE.outward(1,1),
+                new Delay(2),
+                Launcher.INSTANCE.stop(),
+                new FollowPath(bottomRowPath),
+                Launcher.INSTANCE.outward(1,1),
+                new Delay(2),
+                Launcher.INSTANCE.stop(),
+                new FollowPath(parkPath),
+                new InstantCommand(() -> {
+                    autoPose=follower().getPose();
+                })
 
-            /*
-            new FollowPath(topRowPath),
-            new FollowPath(middleRowPath)
-             */
+                 */
         );
     }
+
     public void buildPaths() {
         initialOut = follower().pathBuilder()
                 .addPath(new BezierLine(startPose,outtatheWayPose))
@@ -88,18 +111,23 @@ public class outred extends NextFTCOpMode {
         topRowPath = follower().pathBuilder()
                 .addPath(new BezierLine(launchPose, topRowEndPose))
                 .addPath(new BezierLine(topRowEndPose, launchPose))
-                .addPath(new BezierLine(launchPose, middleRowStartPose))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), topRowEndPose.getHeading())
                 .build();
         middleRowPath = follower().pathBuilder()
+                .addPath(new BezierLine(launchPose, middleRowStartPose))
+                .setLinearHeadingInterpolation(launchPose.getHeading(),middleRowStartPose.getHeading())
                 .addPath(new BezierLine(middleRowStartPose, middleRowEndPose))
                 .addPath(new BezierLine(middleRowEndPose, launchPose))
-                .setLinearHeadingInterpolation(middleRowStartPose.getHeading(), middleRowEndPose.getHeading())
+                .setLinearHeadingInterpolation(middleRowEndPose.getHeading(), launchPose.getHeading())
                 .build();
         bottomRowPath = follower().pathBuilder()
+                .addPath(new BezierLine(launchPose, bottomRowStartPose))
+                .setLinearHeadingInterpolation(launchPose.getHeading(), bottomRowStartPose.getHeading())
                 .addPath(new BezierLine(bottomRowStartPose, bottomRowEndPose))
                 .addPath(new BezierLine(bottomRowEndPose, launchPose))
-                .setLinearHeadingInterpolation(bottomRowStartPose.getHeading(), bottomRowEndPose.getHeading())
+                .setLinearHeadingInterpolation(bottomRowEndPose.getHeading(), launchPose.getHeading())
+                .build();
+        parkPath = follower().pathBuilder()
+                .addPath(new BezierLine(launchPose,parkPose))
                 .build();
     }
 

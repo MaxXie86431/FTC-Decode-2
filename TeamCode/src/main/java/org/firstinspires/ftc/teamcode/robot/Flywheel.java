@@ -37,7 +37,6 @@ public class Flywheel implements Subsystem{
         ).requires(this);
     }
     public Command outward(double power, double delay) {
-        power = Math.abs(power);
         return new SequentialGroup(
                 Intermediate.INSTANCE.rollup(),
                 new Delay(delay),

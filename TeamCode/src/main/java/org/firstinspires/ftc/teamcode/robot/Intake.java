@@ -35,6 +35,10 @@ public class Intake implements Subsystem {
         ).requires(this);
     }
 
+    public Command rawRoll() {
+        return new SetPower(intakeMotor,1).requires(this);
+    }
+
     public Command outward() {
         return new ParallelGroup(
             new SetPower(intakeMotor, -1),
