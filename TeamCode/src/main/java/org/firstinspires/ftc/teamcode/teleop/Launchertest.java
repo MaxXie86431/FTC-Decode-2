@@ -38,10 +38,15 @@ public class Launchertest extends NextFTCOpMode {
     private double distance;
     private Limelight3A Limelight3A;
     public static double anglefactor=-1.6;
-    public static double limelightMountAngleDegrees = 0;
-    public static double limelightLensHeightInches = 13.0;
+    public static double limelightMountAngleDegrees = 23.52;
+    public static double limelightLensHeightInches = 6.5;
     public static double goalHeightInches = 29.5;
     public static double llDelay = 1.25;
+
+    double angle = 0;
+    double verticalangle = 0;
+    double angleToGoal = 0;
+    double distanceFromLimelightToGoalInches = 0;
     private Command driverControlled = new PedroDriverControlled(
             Gamepads.gamepad1().leftStickY().negate(),
             Gamepads.gamepad1().leftStickX().negate(),
@@ -74,6 +79,9 @@ public class Launchertest extends NextFTCOpMode {
         telemetry.addData("rpm", Launcher.INSTANCE.getrpm());
         telemetry.addData("D-pad Left", gamepad1.dpad_left);
         telemetry.addData("D-pad Down", gamepad1.dpad_down);
+        telemetry.addData("Target X", angle);
+        telemetry.addData("Target Y", angleToGoal);
+        telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
         telemetry.update();
         super.onUpdate();
     }
@@ -132,16 +140,11 @@ public class Launchertest extends NextFTCOpMode {
                         List<LLResultTypes.FiducialResult> fiducials = LLResult.getFiducialResults();
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId();
-                            if (id == 20 || id ==24) {
-                                double angle = LLResult.getTx();
-                                double verticalangle = LLResult.getTy();
-                                double angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
-                                double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
-                                telemetry.addData("Target X", angle);
-                                telemetry.addData("Target Y", angleToGoal);
-                                telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
-                                telemetry.update();
-
+                            if (id == 20 || id == 24) {
+                                angle = LLResult.getTx();
+                                verticalangle = LLResult.getTy();
+                                angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
+                                distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
                                 Command turnCommand = turns(anglefactor * angle);
                                 turnCommand.schedule();
                             }

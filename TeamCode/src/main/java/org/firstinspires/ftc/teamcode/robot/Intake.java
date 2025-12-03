@@ -30,8 +30,8 @@ public class Intake implements Subsystem {
     }
     public Command inward() {
         return new ParallelGroup(
-                new SetPower(intakeMotor, 1),
-                Intermediate.INSTANCE.rollup()
+                new SetPower(intakeMotor, - 1),
+                Intermediate.INSTANCE.horizontalrollup()
         ).requires(this);
     }
 
@@ -41,15 +41,15 @@ public class Intake implements Subsystem {
 
     public Command outward() {
         return new ParallelGroup(
-            new SetPower(intakeMotor, -1),
-            Intermediate.INSTANCE.rolldown()
+            new SetPower(intakeMotor, 1),
+            Intermediate.INSTANCE.horizontalrolldown()
         ).requires(this);
     }
 
     public Command stop() {
         return new ParallelGroup(
                 new SetPower(intakeMotor, 0),
-                Intermediate.INSTANCE.stop()
+                Intermediate.INSTANCE.horizontalstop()
         );
     }
 

@@ -14,19 +14,39 @@ public class Intermediate implements Subsystem{
     public static final Intermediate INSTANCE = new Intermediate();
     private Intermediate() {}
     private MotorEx roller;
-
+    private MotorEx verticalroller;
     @Override
     public void initialize() {
         roller = new MotorEx("IntermediateMotor");
+        verticalroller = new MotorEx("VerticalIntermediateMotor");
     }
     public Command rollup() {
-        return new SetPower(roller,1);
+        return new ParallelGroup(
+                new SetPower(roller,1),
+                new SetPower(verticalroller,1)
+        );
     }
     public Command rolldown() {
-        return new SetPower(roller,-1);
+        return new ParallelGroup(
+                new SetPower(roller,-1),
+                new SetPower(verticalroller,-1)
+        );
     }
 
     public Command stop(){
+        return new ParallelGroup(
+                new SetPower(roller,0),
+                new SetPower(verticalroller,0)
+        );
+    }
+
+    public Command horizontalstop(){
         return new SetPower(roller,0);
+    }
+    public Command horizontalrollup(){
+        return new SetPower(roller,1);
+    }
+    public Command horizontalrolldown(){
+        return new SetPower(roller,-1);
     }
 }
