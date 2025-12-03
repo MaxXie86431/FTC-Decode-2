@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.bylazar.configurables.annotations.Configurable;
+
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
@@ -10,24 +12,36 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.powerable.SetPower;
 
+@Configurable
 public class Flywheel implements Subsystem{
     public static final Flywheel INSTANCE = new Flywheel();
     private Flywheel() { }
     private final MotorEx motor = new MotorEx("BottomLaunch");
+    private static final double TICKS_PER_REVOLUTION = 2240.0;
+    public static int outVelocity = 1000;
+    public static int inVelocity = -200;
 
     private final ControlSystem controller = ControlSystem.builder()
             .velPid(0.005, 0, 0)
             .basicFF(0.01, 0.02, 0.03)
             .build();
+
+    public double getVelocityRPM(){
+        double ticksPerSecond = motor.getVelocity();
+        double revPerSec = ticksPerSecond / TICKS_PER_REVOLUTION;
+        double degreesPerSecond = revPerSec * 360;
+        return degreesPerSecond;
+    }
+
     public Command shootOut() {
-        return new RunToVelocity(controller, 500).requires(this);
+        return new RunToVelocity(controller, outVelocity).requires(this);
     }
 
     public Command off() {
         return new RunToVelocity(controller,0).requires(this);
     }
     public Command reverse() {
-        return new RunToVelocity(controller,-100).requires(this);
+        return new RunToVelocity(controller,inVelocity).requires(this);
     }
 
     public Command inward() {

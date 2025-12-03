@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
@@ -32,8 +33,8 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Configurable
-@TeleOp(name = "launchtest")
-public class Launchertest extends NextFTCOpMode {
+@TeleOp(name = "pidflywheel")
+public class pidflywheel extends NextFTCOpMode {
     private double power = 0.9;
     private double distance;
     private Limelight3A Limelight3A;
@@ -62,10 +63,10 @@ public class Launchertest extends NextFTCOpMode {
                 driverControlled
         );
     }
-    public Launchertest() {
+    public pidflywheel() {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Intermediate.INSTANCE, Intake.INSTANCE, Launcher.INSTANCE),
+                new SubsystemComponent(Intermediate.INSTANCE, Intake.INSTANCE, Launcher.INSTANCE, Flywheel.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -76,6 +77,7 @@ public class Launchertest extends NextFTCOpMode {
     public void onUpdate() {
         telemetry.addData("Far Launch Power", farLaunchPower);
         telemetry.addData("Close Launch Power", closeLaunchPower);
+        telemetry.addData("Velocity RPM", Flywheel.INSTANCE.getVelocityRPM());
         telemetry.addData("D-pad Left", gamepad1.dpad_left);
         telemetry.addData("D-pad Down", gamepad1.dpad_down);
         telemetry.addData("Target X", angle);
@@ -98,12 +100,12 @@ public class Launchertest extends NextFTCOpMode {
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
-                .whenBecomesTrue(() -> Launcher.INSTANCE.outward(closeLaunchPower,2).schedule())
-                .whenBecomesFalse(() -> Launcher.INSTANCE.stop().schedule());
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.shootOut().schedule())
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().rightBumper()
-                .whenBecomesTrue(() -> Launcher.INSTANCE.inward().schedule())
-                .whenBecomesFalse(() -> Launcher.INSTANCE.stop().schedule());
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.reverse().schedule())
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenBecomesTrue(() -> Intake.INSTANCE.inward().schedule())
@@ -127,7 +129,7 @@ public class Launchertest extends NextFTCOpMode {
                 .whenBecomesTrue(Launcher.INSTANCE.decreaseFarPower());
 
         Gamepads.gamepad1().dpadDown()
-                        .whenBecomesTrue(Launcher.INSTANCE.decreaseClosePower());
+                .whenBecomesTrue(Launcher.INSTANCE.decreaseClosePower());
 
         Gamepads.gamepad1().dpadUp()
                 .whenBecomesTrue(Launcher.INSTANCE.increaseClosePower());

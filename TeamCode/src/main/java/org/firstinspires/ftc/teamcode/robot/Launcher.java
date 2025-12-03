@@ -115,9 +115,7 @@ public class Launcher implements Subsystem {
         return farLaunchPower;
     }
 
-    public double getrpm() {
-        return (motor.getRawTicks()/28)*60;
-    }
+
 
 
 }
