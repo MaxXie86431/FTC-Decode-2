@@ -166,14 +166,19 @@ public class pidflywheel extends NextFTCOpMode {
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId();
                             if (id == 20 || id == 24) {
-                                angle = LLResult.getTx();
-                                verticalangle = LLResult.getTy();
-                                angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
-                                
-                                // Calculate slant distance (direct distance to target)
-                                double horizontalDistance = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
-                                double heightDifference = goalHeightInches - limelightLensHeightInches;
-                                distanceTrigonometry = Math.sqrt(horizontalDistance * horizontalDistance + heightDifference * heightDifference);
+
+                                double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // -0.24
+                                double y = fiducial.getRobotPoseTargetSpace().getPosition().y;
+                                double z = fiducial.getRobotPoseTargetSpace().getPosition().z;
+
+                                double dd = Math.sqrt(x*x+z*z);
+                                distanceTrigonometry = dd;
+                                //double verticalAngle = LLResult.getTy();
+                                //double angleToGoalRad = Math.toRadians(limelightMountAngleDegrees + verticalAngle);
+                                //double heightDiff = goalHeightInches - limelightLensHeightInches;
+
+                                //distanceTrigonometry = heightDiff / Math.tan(angleToGoalRad);
+
                                 break;
                             }
                         }
