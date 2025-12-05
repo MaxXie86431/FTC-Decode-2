@@ -37,7 +37,7 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 public class pidflywheel extends NextFTCOpMode {
     private double power = 0.9;
     private double distance;
-    private Limelight3A Limelight3A;
+    private Limelight3A limelight;
     public static double anglefactor=-1.6;
     public static double limelightMountAngleDegrees = 23.52;
     public static double limelightLensHeightInches = 6.5;
@@ -53,6 +53,8 @@ public class pidflywheel extends NextFTCOpMode {
             Gamepads.gamepad1().leftStickX().negate(),
             Gamepads.gamepad1().rightStickX().negate()
     );
+
+
 
     private Command turns(double angle){
         return new SequentialGroup(
@@ -71,7 +73,7 @@ public class pidflywheel extends NextFTCOpMode {
                 BindingsComponent.INSTANCE
         );
     }
-
+    
 
     @Override
     public void onUpdate() {
@@ -89,9 +91,9 @@ public class pidflywheel extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-        Limelight3A.start();
-        Limelight3A.pipelineSwitch(1);
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.start();
+        limelight.pipelineSwitch(1);
 
     }
     @Override
@@ -136,8 +138,20 @@ public class pidflywheel extends NextFTCOpMode {
 
         Gamepads.gamepad1().b()
                 .whenBecomesTrue(() -> {
-                    LLResult LLResult = Limelight3A.getLatestResult();
+                    LLResult LLResult = limelight.getLatestResult();
+                 
+                    
                     if (LLResult != null && LLResult.isValid()) {
+                        /*
+                        Pose3D botpose = result.getBotpose();
+                        if (botpose == null) {
+                                return -1;
+                        }
+                        double x = botpose.getPosition().x;
+                        double z = botpose.getPosition().z;
+                        
+                        distanceFromLimelightToGoalInches = Math.sqrt(x * x + z * z);*/
+                        
                         List<LLResultTypes.FiducialResult> fiducials = LLResult.getFiducialResults();
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId();
