@@ -7,6 +7,10 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.limelightvision.Pose3D;
+
+import limelight.LimelightHelpers;
+import limelight.LimelightHelpers.RawFiducial;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.Flywheel;
@@ -48,6 +52,11 @@ public class pidflywheel extends NextFTCOpMode {
     double verticalangle = 0;
     double angleToGoal = 0;
     double distanceFromLimelightToGoalInches = 0;
+    
+    // Variables for comparing all three distance methods
+    double distanceBotPose = 0;
+    double distanceTrigonometry = 0;
+    double distanceRawFiducial = 0;
     private Command driverControlled = new PedroDriverControlled(
             Gamepads.gamepad1().leftStickY().negate(),
             Gamepads.gamepad1().leftStickX().negate(),
@@ -84,7 +93,14 @@ public class pidflywheel extends NextFTCOpMode {
         telemetry.addData("D-pad Down", gamepad1.dpad_down);
         telemetry.addData("Target X", angle);
         telemetry.addData("Target Y", angleToGoal);
-        telemetry.addData("Distance from goal", distanceFromLimelightToGoalInches);
+        
+        // Distance comparison - all three methods
+        telemetry.addLine("=== DISTANCE MEASUREMENTS ===");
+        telemetry.addData("1. BotPose Distance", distanceBotPose > 0 ? String.format("%.2f in", distanceBotPose) : "No Data");
+        telemetry.addData("2. Trigonometry Distance", distanceTrigonometry > 0 ? String.format("%.2f in", distanceTrigonometry) : "No Data");
+        telemetry.addData("3. RawFiducial Distance", distanceRawFiducial > 0 ? String.format("%.2f in", distanceRawFiducial) : "No Data");
+        telemetry.addData("ACTIVE Distance Used", String.format("%.2f in", distanceFromLimelightToGoalInches));
+        
         telemetry.update();
         super.onUpdate();
     }
@@ -138,20 +154,20 @@ public class pidflywheel extends NextFTCOpMode {
 
         Gamepads.gamepad1().b()
                 .whenBecomesTrue(() -> {
-                    LLResult LLResult = limelight.getLatestResult();
-                 
+                    distanceBotPose = -1;
+                    distanceTrigonometry = -1; 
+                    distanceRawFiducial = -1;
                     
+                    LLResult LLResult = limelight.getLatestResult();
                     if (LLResult != null && LLResult.isValid()) {
-                        /*
-                        Pose3D botpose = result.getBotpose();
-                        if (botpose == null) {
-                                return -1;
+                        Pose3D botpose = LLResult.getBotpose();
+                        if (botpose != null) {
+                            double x = botpose.getPosition().x;
+                            double z = botpose.getPosition().z;
+                            distanceBotPose = Math.sqrt(x * x + z * z) * 39.3701; // meters to inches
                         }
-                        double x = botpose.getPosition().x;
-                        double z = botpose.getPosition().z;
                         
-                        distanceFromLimelightToGoalInches = Math.sqrt(x * x + z * z);*/
-                        
+                        // METHOD 2: Trigonometric calculation using fiducials
                         List<LLResultTypes.FiducialResult> fiducials = LLResult.getFiducialResults();
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId();
@@ -159,12 +175,45 @@ public class pidflywheel extends NextFTCOpMode {
                                 angle = LLResult.getTx();
                                 verticalangle = LLResult.getTy();
                                 angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
-                                distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
-                                Command turnCommand = turns(anglefactor * angle);
-                                turnCommand.schedule();
+                                
+                                // Calculate slant distance (direct distance to target)
+                                double horizontalDistance = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
+                                double heightDifference = goalHeightInches - limelightLensHeightInches;
+                                distanceTrigonometry = Math.sqrt(horizontalDistance * horizontalDistance + heightDifference * heightDifference);
+                                break;
                             }
                         }
-
+                    }
+                    
+                    // METHOD 3: LimelightHelpers RawFiducials approach
+                    RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials("");
+                    for (RawFiducial fiducial : rawFiducials) {
+                        int id = fiducial.id;
+                        if (id == 20 || id == 24) {
+                            double txnc = fiducial.txnc;             // X offset (no crosshair)
+                            double tync = fiducial.tync;             // Y offset (no crosshair)
+                            double ta = fiducial.ta;                 // Target area
+                            double distToCamera = fiducial.distToCamera;  // Distance to camera in meters
+                            double distToRobot = fiducial.distToRobot;    // Distance to robot in meters
+                            double ambiguity = fiducial.ambiguity;   // Tag pose ambiguity
+                            
+                            distanceRawFiducial = distToRobot * 39.3701; // meters to inches
+                            angle = txnc; // Use txnc for angle
+                            break;
+                        }
+                    }
+                    
+                    if (distanceRawFiducial > 0) {
+                        distanceFromLimelightToGoalInches = distanceRawFiducial;
+                    } else if (distanceBotPose > 0) {
+                        distanceFromLimelightToGoalInches = distanceBotPose;
+                    } else if (distanceTrigonometry > 0) {
+                        distanceFromLimelightToGoalInches = distanceTrigonometry;
+                    }
+                    
+                    if (distanceFromLimelightToGoalInches > 0) {
+                        Command turnCommand = turns(anglefactor * angle);
+                        turnCommand.schedule();
                     }
                 });
         Gamepads.gamepad1().a().toggleOnBecomesTrue()
