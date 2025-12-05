@@ -9,8 +9,6 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.Pose3D;
 
-import limelight.LimelightHelpers;
-import limelight.LimelightHelpers.RawFiducial;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.Flywheel;
@@ -185,21 +183,24 @@ public class pidflywheel extends NextFTCOpMode {
                         }
                     }
                     
-                    // METHOD 3: LimelightHelpers RawFiducials approach
-                    RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials("");
-                    for (RawFiducial fiducial : rawFiducials) {
-                        int id = fiducial.id;
+                    // METHOD 3: FTC FiducialResult approach (using built-in distance calculations)
+                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                        int id = fiducial.getFiducialId();
                         if (id == 20 || id == 24) {
-                            double txnc = fiducial.txnc;             // X offset (no crosshair)
-                            double tync = fiducial.tync;             // Y offset (no crosshair)
-                            double ta = fiducial.ta;                 // Target area
-                            double distToCamera = fiducial.distToCamera;  // Distance to camera in meters
-                            double distToRobot = fiducial.distToRobot;    // Distance to robot in meters
-                            double ambiguity = fiducial.ambiguity;   // Tag pose ambiguity
-                            
-                            distanceRawFiducial = distToRobot * 39.3701; // meters to inches
-                            angle = txnc; // Use txnc for angle
-                            break;
+                            // Get the robot pose in target space for distance calculation
+                            double[] robotPoseTargetSpace = fiducial.getRobotPoseTargetSpace();
+                            if (robotPoseTargetSpace != null && robotPoseTargetSpace.length >= 3) {
+                                double x = robotPoseTargetSpace[0]; // X position in meters
+                                double y = robotPoseTargetSpace[1]; // Y position in meters  
+                                double z = robotPoseTargetSpace[2]; // Z position in meters
+                                
+                                // Calculate 3D distance to target
+                                distanceRawFiducial = Math.sqrt(x*x + y*y + z*z) * 39.3701; // meters to inches
+                                
+                                // Use the fiducial's target area and angles
+                                angle = fiducial.getTx(); // Use target X angle
+                                break;
+                            }
                         }
                     }
                     
