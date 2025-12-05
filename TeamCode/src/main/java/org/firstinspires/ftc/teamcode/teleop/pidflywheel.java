@@ -54,7 +54,6 @@ public class pidflywheel extends NextFTCOpMode {
     // Variables for comparing all three distance methods
     double distanceBotPose = 0;
     double distanceTrigonometry = 0;
-    double distanceRawFiducial = 0;
     private Command driverControlled = new PedroDriverControlled(
             Gamepads.gamepad1().leftStickY().negate(),
             Gamepads.gamepad1().leftStickX().negate(),
@@ -96,7 +95,6 @@ public class pidflywheel extends NextFTCOpMode {
         telemetry.addLine("=== DISTANCE MEASUREMENTS ===");
         telemetry.addData("1. BotPose Distance", distanceBotPose > 0 ? String.format("%.2f in", distanceBotPose) : "No Data");
         telemetry.addData("2. Trigonometry Distance", distanceTrigonometry > 0 ? String.format("%.2f in", distanceTrigonometry) : "No Data");
-        telemetry.addData("3. RawFiducial Distance", distanceRawFiducial > 0 ? String.format("%.2f in", distanceRawFiducial) : "No Data");
         telemetry.addData("ACTIVE Distance Used", String.format("%.2f in", distanceFromLimelightToGoalInches));
         
         telemetry.update();
@@ -153,9 +151,7 @@ public class pidflywheel extends NextFTCOpMode {
         Gamepads.gamepad1().b()
                 .whenBecomesTrue(() -> {
                     distanceBotPose = -1;
-                    distanceTrigonometry = -1; 
-                    distanceRawFiducial = -1;
-                    
+                    distanceTrigonometry = -1;
                     LLResult LLResult = limelight.getLatestResult();
                     if (LLResult != null && LLResult.isValid()) {
                         Pose3D botpose = LLResult.getBotpose();
@@ -183,30 +179,9 @@ public class pidflywheel extends NextFTCOpMode {
                         }
                     }
                     
-                    // METHOD 3: FTC FiducialResult approach (using built-in distance calculations)
-                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                        int id = fiducial.getFiducialId();
-                        if (id == 20 || id == 24) {
-                            // Get the robot pose in target space for distance calculation
-                            double[] robotPoseTargetSpace = fiducial.getRobotPoseTargetSpace();
-                            if (robotPoseTargetSpace != null && robotPoseTargetSpace.length >= 3) {
-                                double x = robotPoseTargetSpace[0]; // X position in meters
-                                double y = robotPoseTargetSpace[1]; // Y position in meters  
-                                double z = robotPoseTargetSpace[2]; // Z position in meters
-                                
-                                // Calculate 3D distance to target
-                                distanceRawFiducial = Math.sqrt(x*x + y*y + z*z) * 39.3701; // meters to inches
-                                
-                                // Use the fiducial's target area and angles
-                                angle = fiducial.getTx(); // Use target X angle
-                                break;
-                            }
-                        }
-                    }
+
                     
-                    if (distanceRawFiducial > 0) {
-                        distanceFromLimelightToGoalInches = distanceRawFiducial;
-                    } else if (distanceBotPose > 0) {
+                    if (distanceBotPose > 0) {
                         distanceFromLimelightToGoalInches = distanceBotPose;
                     } else if (distanceTrigonometry > 0) {
                         distanceFromLimelightToGoalInches = distanceTrigonometry;
