@@ -7,7 +7,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.limelightvision.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
