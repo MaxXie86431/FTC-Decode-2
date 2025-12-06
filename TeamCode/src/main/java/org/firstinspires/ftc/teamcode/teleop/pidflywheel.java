@@ -114,7 +114,7 @@ public class pidflywheel extends NextFTCOpMode {
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
-                .whenBecomesTrue(() -> Flywheel.INSTANCE.shootOut().schedule())
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.shootOut((int)(closeLaunchPower*1000)).schedule())
                 .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().rightBumper()

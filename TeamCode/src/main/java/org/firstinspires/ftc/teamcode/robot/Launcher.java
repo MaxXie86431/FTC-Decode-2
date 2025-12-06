@@ -82,7 +82,7 @@ public class Launcher implements Subsystem {
 
         return new InstantCommand(() -> {
             if (farLaunchPower<1) {
-                farLaunchPower += 0.05;
+                farLaunchPower += 0.025;
             } // change field here
         });
     }
@@ -90,7 +90,7 @@ public class Launcher implements Subsystem {
     public Command decreaseFarPower() {
         return new InstantCommand(() -> {
             if (farLaunchPower>0.05) {
-                farLaunchPower -= 0.05;
+                farLaunchPower -= 0.025;
             }
         });
     }
@@ -99,14 +99,14 @@ public class Launcher implements Subsystem {
 
         return new InstantCommand(() -> {
             if (closeLaunchPower<1) {
-                closeLaunchPower += 0.05;
+                closeLaunchPower += 0.025;
             } // change field here
         });
     }
     public Command decreaseClosePower() {
         return new InstantCommand(() -> {
             if (closeLaunchPower>0.05) {
-                closeLaunchPower -= 0.05;
+                closeLaunchPower -= 0.025;
             }
         });
     }

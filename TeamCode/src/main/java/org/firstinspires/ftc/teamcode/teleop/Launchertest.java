@@ -9,6 +9,8 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
@@ -47,6 +49,7 @@ public class Launchertest extends NextFTCOpMode {
     double verticalangle = 0;
     double angleToGoal = 0;
     double distanceFromLimelightToGoalInches = 0;
+    double goalVelocity = 0;
     private Command driverControlled = new PedroDriverControlled(
             Gamepads.gamepad1().leftStickY().negate(),
             Gamepads.gamepad1().leftStickX().negate(),
@@ -65,7 +68,7 @@ public class Launchertest extends NextFTCOpMode {
     public Launchertest() {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Intermediate.INSTANCE, Intake.INSTANCE, Launcher.INSTANCE),
+                new SubsystemComponent(Intermediate.INSTANCE, Intake.INSTANCE, Flywheel.INSTANCE, Launcher.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -76,6 +79,8 @@ public class Launchertest extends NextFTCOpMode {
     public void onUpdate() {
         telemetry.addData("Far Launch Power", farLaunchPower);
         telemetry.addData("Close Launch Power", closeLaunchPower);
+        telemetry.addData("Velocity RPM", Flywheel.INSTANCE.getVelocityRPM());
+        telemetry.addData("Goal Velocity", goalVelocity);
         telemetry.addData("D-pad Left", gamepad1.dpad_left);
         telemetry.addData("D-pad Down", gamepad1.dpad_down);
         telemetry.addData("Target X", angle);
@@ -98,12 +103,14 @@ public class Launchertest extends NextFTCOpMode {
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
-                .whenBecomesTrue(() -> Launcher.INSTANCE.outward(closeLaunchPower,2).schedule())
-                .whenBecomesFalse(() -> Launcher.INSTANCE.stop().schedule());
+                .whenBecomesTrue(() -> {
+                    Flywheel.INSTANCE.shootOut(goalVelocity).schedule();
+                })
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().rightBumper()
-                .whenBecomesTrue(() -> Launcher.INSTANCE.inward().schedule())
-                .whenBecomesFalse(() -> Launcher.INSTANCE.stop().schedule());
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.reverse().schedule())
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenBecomesTrue(() -> Intake.INSTANCE.inward().schedule())
@@ -127,13 +134,14 @@ public class Launchertest extends NextFTCOpMode {
                 .whenBecomesTrue(Launcher.INSTANCE.decreaseFarPower());
 
         Gamepads.gamepad1().dpadDown()
-                        .whenBecomesTrue(Launcher.INSTANCE.decreaseClosePower());
+                .whenBecomesTrue(Launcher.INSTANCE.decreaseClosePower());
 
         Gamepads.gamepad1().dpadUp()
                 .whenBecomesTrue(Launcher.INSTANCE.increaseClosePower());
 
         Gamepads.gamepad1().b()
                 .whenBecomesTrue(() -> {
+                    distanceFromLimelightToGoalInches = -1;
                     LLResult LLResult = Limelight3A.getLatestResult();
                     if (LLResult != null && LLResult.isValid()) {
                         List<LLResultTypes.FiducialResult> fiducials = LLResult.getFiducialResults();
@@ -141,14 +149,15 @@ public class Launchertest extends NextFTCOpMode {
                             int id = fiducial.getFiducialId();
                             if (id == 20 || id == 24) {
                                 angle = LLResult.getTx();
-                                verticalangle = LLResult.getTy();
-                                angleToGoal = (limelightMountAngleDegrees + verticalangle) * (3.14159 / 180.0);
-                                distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoal);
+                                double x = fiducial.getRobotPoseTargetSpace().getPosition().x;
+                                double z = fiducial.getRobotPoseTargetSpace().getPosition().z;
+                                distanceFromLimelightToGoalInches = Math.sqrt(x * x + z * z);
+                                goalVelocity = 269.70662 * distanceFromLimelightToGoalInches + 915.21596;
                                 Command turnCommand = turns(anglefactor * angle);
                                 turnCommand.schedule();
+                                break;
                             }
                         }
-
                     }
                 });
         Gamepads.gamepad1().a().toggleOnBecomesTrue()

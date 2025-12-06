@@ -14,6 +14,16 @@ import dev.nextftc.hardware.powerable.SetPower;
 
 @Configurable
 public class Flywheel implements Subsystem{
+    public static double kP = 0.005;
+    public static double kI = 0.01;
+    public static double kD = 0;
+    public static double kV = 0.01;
+    public static double kA = 0.02;
+    public static double kS = 0.03;
+    private final ControlSystem controller = ControlSystem.builder()
+            .velPid(kP, kI, kD)
+            .basicFF(kV, kA, kS)
+            .build();
     public static final Flywheel INSTANCE = new Flywheel();
     private Flywheel() { }
     private final MotorEx motor = new MotorEx("BottomLaunch");
@@ -21,20 +31,16 @@ public class Flywheel implements Subsystem{
     public static int outVelocity = 1000;
     public static int inVelocity = -200;
 
-    private final ControlSystem controller = ControlSystem.builder()
-            .velPid(0.005, 0, 0)
-            .basicFF(0.01, 0.02, 0.03)
-            .build();
-
     public double getVelocityRPM(){
         double ticksPerSecond = motor.getVelocity();
-        double revPerSec = ticksPerSecond / TICKS_PER_REVOLUTION;
-        double degreesPerSecond = revPerSec * 360;
-        return degreesPerSecond;
+        /*double revPerSec = ticksPerSecond / TICKS_PER_REVOLUTION;
+        double degreesPerSecond = revPerSec * 360;*/
+        return ticksPerSecond;
     }
 
-    public Command shootOut() {
-        return new RunToVelocity(controller, outVelocity).requires(this);
+    public Command shootOut(double velocity) {
+        //double ticksPerSecond = velocity * TICKS_PER_REVOLUTION / 60.0;
+        return new RunToVelocity(controller, velocity).requires(this);
     }
 
     public Command off() {
