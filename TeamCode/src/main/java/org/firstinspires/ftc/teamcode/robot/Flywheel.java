@@ -20,10 +20,12 @@ public class Flywheel implements Subsystem{
     public static double kV = 0.01;
     public static double kA = 0.02;
     public static double kS = 0.03;
+
     private final ControlSystem controller = ControlSystem.builder()
             .velPid(kP, kI, kD)
             .basicFF(kV, kA, kS)
             .build();
+
     public static final Flywheel INSTANCE = new Flywheel();
     private Flywheel() { }
     private final MotorEx motor = new MotorEx("BottomLaunch");
