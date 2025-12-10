@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -21,6 +22,7 @@ import dev.nextftc.ftc.ActiveOpMode;
 import java.util.List;
 
 
+@Configurable
 public class Limelight implements Subsystem {
     public static final Limelight INSTANCE = new Limelight();
     private Limelight() {}
@@ -29,6 +31,11 @@ public class Limelight implements Subsystem {
     private double distanceFromLimelightToGoal;
     private double goalVelocity;
     private double angleForAlignment;
+    public static double slope = 269.70662;
+    public static double constant = 915.21596;
+
+    public static double angleFactor = -1.6;
+
 
     @Override
     public void initialize() {
@@ -49,16 +56,7 @@ public class Limelight implements Subsystem {
                     double x = fiducial.getRobotPoseTargetSpace().getPosition().x;
                     double z = fiducial.getRobotPoseTargetSpace().getPosition().z;
                     distanceFromLimelightToGoal = Math.sqrt(x * x + z * z);
-                    goalVelocity = 269.70662 * distanceFromLimelightToGoal + 915.21596 + 70;
-
-
-                    // angle alignment
-                    double camera_angle_to_target = fiducial.getTargetXDegrees();
-                    driverControlled.cancel();
-                    Command turn_ = turns(anglefactor * camera_angle_to_target);
-                    telemetry.update();
-                    turn_.schedule();
-
+                    goalVelocity = slope * distanceFromLimelightToGoal + constant;
                     return new double[]{distanceFromLimelightToGoal, goalVelocity};
                 }
             }
@@ -78,12 +76,11 @@ public class Limelight implements Subsystem {
                     //Command turn_ = turns(anglefactor * camera_angle_to_target);
                     //telemetry.update();
                     //turn_.schedule();
-
-                    return new angleForAlignment;
+                    return angleFactor * angleForAlignment;
                 }
             }
         }
-        return new 0;
+        return 0;
     }
 
 }

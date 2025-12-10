@@ -41,8 +41,6 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 @Configurable
 @TeleOp(name = "launchtest")
 public class Launchertest extends NextFTCOpMode {
-    private double power = 0.9;
-    private double distance;
     private Limelight3A Limelight3A;
     public static double llDelay = 1.25;
 
