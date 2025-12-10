@@ -19,27 +19,27 @@ import com.bylazar.configurables.annotations.Configurable;
 public class Constants {
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(6.41)
-            .forwardZeroPowerAcceleration(-53.9944122730457)
-            .lateralZeroPowerAcceleration(-88.48166652764266)
+            .mass(10.65)
+            .forwardZeroPowerAcceleration(-41.61821880156717)
+            .lateralZeroPowerAcceleration(-68.90824821816265)
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.15,
+                    0.06,
                     0,
-                    0.01,
-                    0.015
+                    0.001,
+                    0.03
             ))
             .headingPIDFCoefficients(new PIDFCoefficients(
-                    1.225,
+                    0.9,
                     0,
-                    0,
-                    0.01
+                    0.01,
+                    0.03
             ))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.001,
+                    0.5,
                     0,
-                    0.00001,
+                    0.008,
                     0,
-                    0.3
+                    0.0
             ))
             .centripetalScaling(0.0012);
 
@@ -55,8 +55,8 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(63.31854055810163)
-            .yVelocity(53.81359382689468)
+            .xVelocity(61.183044)
+            .yVelocity(47.247518224040356)
             .useBrakeModeInTeleOp(true);
 
 
