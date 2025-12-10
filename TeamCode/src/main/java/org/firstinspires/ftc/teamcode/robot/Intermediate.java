@@ -24,20 +24,20 @@ public class Intermediate implements Subsystem{
         return new ParallelGroup(
                 new SetPower(roller,1),
                 new SetPower(verticalroller,1)
-        );
+        ).requires(this);
     }
     public Command rolldown() {
         return new ParallelGroup(
                 new SetPower(roller,-1),
                 new SetPower(verticalroller,-1)
-        );
+        ).requires(this);
     }
 
     public Command stop(){
         return new ParallelGroup(
                 new SetPower(roller,0),
                 new SetPower(verticalroller,0)
-        );
+        ).requires(this);
     }
 
     public Command horizontalstop(){

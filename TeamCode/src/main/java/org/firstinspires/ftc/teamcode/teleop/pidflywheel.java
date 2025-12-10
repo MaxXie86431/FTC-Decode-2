@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
@@ -114,7 +115,7 @@ public class pidflywheel extends NextFTCOpMode {
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
-                .whenBecomesTrue(() -> Flywheel.INSTANCE.shootOut((int)(closeLaunchPower*1000)).schedule())
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.out((int)(closeLaunchPower*1000)).schedule())
                 .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
 
         Gamepads.gamepad1().rightBumper()
