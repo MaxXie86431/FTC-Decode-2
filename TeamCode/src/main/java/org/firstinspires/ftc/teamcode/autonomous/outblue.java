@@ -17,9 +17,11 @@ import dev.nextftc.extensions.pedro.FollowPath;
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
+import org.firstinspires.ftc.teamcode.robot.Limelight;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
 
@@ -36,11 +38,7 @@ public class outblue extends NextFTCOpMode {
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
     private static final Pose bottomRowStartPose = new Pose(50, 36, Math.toRadians(180));
     private static final Pose bottomRowEndPose = new Pose(20, 36, Math.toRadians(180));
-    public static double delay = 2;
-    public static double betweenBallsDelay = 0.2;
-    public static double intermediateDelay = 1;
-    public static double afterBallsDelay = 3;
-    public static double power = 0.75;
+    public static int velocity = 1000;
 
     private PathChain initialLaunchPath, initialOut, outtaTheWayPath, topRowPath, middleRowPath, bottomRowPath, parkPath;
     public static Pose autoPose;
@@ -49,7 +47,7 @@ public class outblue extends NextFTCOpMode {
     {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Launcher.INSTANCE, Intake.INSTANCE, Intermediate.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE, Intermediate.INSTANCE, Flywheel.INSTANCE, Limelight.INSTANCE),
                 BulkReadComponent.INSTANCE
         );
     }
@@ -59,40 +57,20 @@ public class outblue extends NextFTCOpMode {
     private Command autonomousRoutine(){
         return new SequentialGroup(
                 new FollowPath(initialLaunchPath),
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
-                Intake.INSTANCE.rawRoll(),
-                new Delay(afterBallsDelay),
-                Launcher.INSTANCE.stop(),
-                Intake.INSTANCE.stop(),
-                new FollowPath(outtaTheWayPath)
-                /*
+                Flywheel.INSTANCE.constantShot(velocity),
                 Intake.INSTANCE.inward(),
                 new FollowPath(topRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
+                Intake.INSTANCE.stop(),
+                Flywheel.INSTANCE.constantShot(velocity),
+                Intake.INSTANCE.inward(),
                 new FollowPath(middleRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
+                Intake.INSTANCE.stop(),
+                Flywheel.INSTANCE.constantShot(velocity),
+                Intake.INSTANCE.inward(),
                 new FollowPath(bottomRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
-                new FollowPath(parkPath),
-                new InstantCommand(() -> {
-                    autoPose=follower().getPose();
-                })
+                Intake.INSTANCE.stop(),
+                Flywheel.INSTANCE.constantShot(velocity)
 
-                 */
             );
     }
 

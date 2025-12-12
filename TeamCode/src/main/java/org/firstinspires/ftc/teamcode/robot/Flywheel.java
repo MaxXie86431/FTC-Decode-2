@@ -65,6 +65,13 @@ public class Flywheel implements Subsystem{
 
     }
 
+    public Command constantShot(int velocity) {
+        return new SequentialGroup(
+                out(velocity),
+                Intermediate.INSTANCE.rollup()
+        ).requires(this);
+    }
+
 
     @Override
     public void periodic() {
