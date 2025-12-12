@@ -96,7 +96,6 @@ public class Launchertest extends NextFTCOpMode {
         Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Limelight3A.start();
         Limelight3A.pipelineSwitch(1);
-
     }
     @Override
     public void onStartButtonPressed() {
@@ -147,7 +146,9 @@ public class Launchertest extends NextFTCOpMode {
                 .whenBecomesTrue(()-> Launcher.INSTANCE.rawLaunch(closeLaunchPower).schedule())
                 .whenBecomesFalse(()-> Launcher.INSTANCE.stop().schedule());
 
-
+        Gamepads.gamepad1().b().toggleOnBecomesTrue()
+                .whenBecomesTrue(()-> turns(Limelight.INSTANCE.calculateAlignmentAngle()).schedule())
+                .whenBecomesFalse(()-> Launcher.INSTANCE.stop().schedule());
 
     }
 }

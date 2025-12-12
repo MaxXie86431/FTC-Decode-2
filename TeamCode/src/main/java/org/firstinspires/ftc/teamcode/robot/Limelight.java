@@ -12,6 +12,8 @@ import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelDeadlineGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
+import dev.nextftc.core.units.Angle;
+import dev.nextftc.extensions.pedro.TurnBy;
 
 import dev.nextftc.ftc.Gamepads;
 
@@ -35,6 +37,7 @@ public class Limelight implements Subsystem {
     public static double constant = 915.21596;
 
     public static double angleFactor = -1.6;
+    public static double llDelay = 1.25;
 
 
     @Override
@@ -81,6 +84,14 @@ public class Limelight implements Subsystem {
             }
         }
         return 0;
+    }
+
+    public Command alignToTarget() {
+        double angle = calculateAlignmentAngle();
+        return new ParallelDeadlineGroup(
+                new Delay(llDelay),
+                new TurnBy(Angle.fromDeg(angle))
+        );
     }
 
 }

@@ -115,7 +115,4 @@ public class Launcher implements Subsystem {
         return farLaunchPower;
     }
 
-
-
-
 }

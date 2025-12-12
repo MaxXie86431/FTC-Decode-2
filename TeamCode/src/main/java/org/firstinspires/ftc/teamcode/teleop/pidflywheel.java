@@ -48,7 +48,7 @@ public class pidflywheel extends NextFTCOpMode {
     public static double llDelay = 1.25;
 
     double angle = 0;
-    double verticalangle = 0;
+    double verticalangle =1 0;
     double angleToGoal = 0;
     double distanceFromLimelightToGoalInches = 0;
     
