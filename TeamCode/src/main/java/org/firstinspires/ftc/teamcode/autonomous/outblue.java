@@ -57,19 +57,19 @@ public class outblue extends NextFTCOpMode {
     private Command autonomousRoutine(){
         return new SequentialGroup(
                 new FollowPath(initialLaunchPath),
-                Flywheel.INSTANCE.constantShot(velocity),
+                Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
                 Intake.INSTANCE.inward(),
                 new FollowPath(topRowPath),
                 Intake.INSTANCE.stop(),
-                Flywheel.INSTANCE.constantShot(velocity),
+                Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
                 Intake.INSTANCE.inward(),
                 new FollowPath(middleRowPath),
                 Intake.INSTANCE.stop(),
-                Flywheel.INSTANCE.constantShot(velocity),
+                Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
                 Intake.INSTANCE.inward(),
                 new FollowPath(bottomRowPath),
                 Intake.INSTANCE.stop(),
-                Flywheel.INSTANCE.constantShot(velocity)
+                Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3))
 
             );
     }

@@ -107,13 +107,13 @@ public class Launchertest extends NextFTCOpMode {
                     Flywheel.INSTANCE.shootOut().schedule();
                 })
                 .whenBecomesFalse(() -> {
-                    Flywheel.INSTANCE.off().schedule();
+                    Flywheel.INSTANCE.shutdown().schedule();
                     Intermediate.INSTANCE.stop().schedule();
                 });
 
         Gamepads.gamepad1().rightBumper()
                 .whenBecomesTrue(() -> Flywheel.INSTANCE.reverse().schedule())
-                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.shutdown().schedule());
 
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenBecomesTrue(() -> Intake.INSTANCE.inward().schedule())

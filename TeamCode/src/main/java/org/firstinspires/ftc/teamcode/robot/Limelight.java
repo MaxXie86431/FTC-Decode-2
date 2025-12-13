@@ -33,8 +33,8 @@ public class Limelight implements Subsystem {
     private double distanceFromLimelightToGoal;
     private double goalVelocity;
     private double angleForAlignment;
-    public static double slope = 269.70662;
-    public static double constant = 915.21596;
+    public static double slope = 236.37959;
+    public static double constant = 941.20318;
 
     public static double angleFactor = -1.6;
     public static double llDelay = 1.25;

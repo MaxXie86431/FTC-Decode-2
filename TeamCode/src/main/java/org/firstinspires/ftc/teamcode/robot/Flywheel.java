@@ -23,6 +23,8 @@ public class Flywheel implements Subsystem{
     public static double distanceToGoal = 0;
     public static double launchVelocity = 0;
 
+    public static boolean powerState = false;
+
     private final ControlSystem controller = ControlSystem.builder()
             .velPid(kP, kI, kD)
             .basicFF(kV, kA, kS)
@@ -44,17 +46,20 @@ public class Flywheel implements Subsystem{
 
     public Command out(double velocity) {
         //double ticksPerSecond = velocity * TICKS_PER_REVOLUTION / 60.0;
-        return new RunToVelocity(controller, velocity, 50).requires(this);
+        powerState = true;
+        return new RunToVelocity(controller, velocity, 20).requires(this);
     }
 
-    public Command off() {
-        return new RunToVelocity(controller,0).requires(this);
+    public Command shutdown(){
+        powerState = false;
+        return new SetPower(motor,0).requires(this);
     }
     public Command reverse() {
-        return new RunToVelocity(controller,inVelocity, 50).requires(this);
+        return new RunToVelocity(controller,inVelocity, 20).requires(this);
     }
 
     public Command shootOut() {
+        powerState = true;
         double[] values = Limelight.INSTANCE.calculateLaunchPower();
         distanceToGoal = values[0];
         launchVelocity = values[1];
@@ -75,6 +80,7 @@ public class Flywheel implements Subsystem{
 
     @Override
     public void periodic() {
-        motor.setPower(controller.calculate(motor.getState()));
+        if(powerState)
+            motor.setPower(controller.calculate(motor.getState()));
     }
 }

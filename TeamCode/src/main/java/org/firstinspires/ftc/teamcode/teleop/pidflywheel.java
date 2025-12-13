@@ -48,7 +48,6 @@ public class pidflywheel extends NextFTCOpMode {
     public static double llDelay = 1.25;
 
     double angle = 0;
-    double verticalangle =1 0;
     double angleToGoal = 0;
     double distanceFromLimelightToGoalInches = 0;
     
@@ -115,12 +114,12 @@ public class pidflywheel extends NextFTCOpMode {
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
-                .whenBecomesTrue(() -> Flywheel.INSTANCE.out((int)(closeLaunchPower*1000)).schedule())
-                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
+                .whenBecomesTrue(() -> Flywheel.INSTANCE.out((int)(closeLaunchPower*2000)).schedule())
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.shutdown().schedule());
 
         Gamepads.gamepad1().rightBumper()
                 .whenBecomesTrue(() -> Flywheel.INSTANCE.reverse().schedule())
-                .whenBecomesFalse(() -> Flywheel.INSTANCE.off().schedule());
+                .whenBecomesFalse(() -> Flywheel.INSTANCE.shutdown().schedule());
 
         Gamepads.gamepad1().leftTrigger().greaterThan(0.2)
                 .whenBecomesTrue(() -> Intake.INSTANCE.inward().schedule())
