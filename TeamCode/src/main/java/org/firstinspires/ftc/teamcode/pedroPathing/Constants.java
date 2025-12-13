@@ -77,7 +77,7 @@ public class Constants {
             0.1,
             0.009,
             500,
-            1,
+            3,
             10,
             1
     );

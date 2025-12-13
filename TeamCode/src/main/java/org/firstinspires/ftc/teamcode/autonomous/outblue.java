@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.PedroComponent;
@@ -38,7 +39,7 @@ public class outblue extends NextFTCOpMode {
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
     private static final Pose bottomRowStartPose = new Pose(50, 36, Math.toRadians(180));
     private static final Pose bottomRowEndPose = new Pose(20, 36, Math.toRadians(180));
-    public static int velocity = 1000;
+    public static int velocity = 1180;
 
     private PathChain initialLaunchPath, initialOut, outtaTheWayPath, topRowPath, middleRowPath, bottomRowPath, parkPath;
     public static Pose autoPose;
@@ -57,7 +58,13 @@ public class outblue extends NextFTCOpMode {
     private Command autonomousRoutine(){
         return new SequentialGroup(
                 new FollowPath(initialLaunchPath),
-                Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
+                    Flywheel.INSTANCE.constantShot(velocity),
+                    new Delay(5),
+                    //Intake.INSTANCE.rawRoll()
+
+                //Intake.INSTANCE.stop(),
+                Flywheel.INSTANCE.shutdown()
+                /*
                 Intake.INSTANCE.inward(),
                 new FollowPath(topRowPath),
                 Intake.INSTANCE.stop(),
@@ -70,6 +77,8 @@ public class outblue extends NextFTCOpMode {
                 new FollowPath(bottomRowPath),
                 Intake.INSTANCE.stop(),
                 Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3))
+
+                 */
 
             );
     }

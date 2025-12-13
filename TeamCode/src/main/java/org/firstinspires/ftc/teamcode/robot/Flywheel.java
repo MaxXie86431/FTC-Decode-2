@@ -11,6 +11,7 @@ import dev.nextftc.control.ControlSystem;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.powerable.SetPower;
+import dev.nextftc.core.commands.utility.InstantCommand;
 
 @Configurable
 public class Flywheel implements Subsystem{
@@ -46,20 +47,23 @@ public class Flywheel implements Subsystem{
 
     public Command out(double velocity) {
         //double ticksPerSecond = velocity * TICKS_PER_REVOLUTION / 60.0;
-        powerState = true;
-        return new RunToVelocity(controller, velocity, 20).requires(this);
+        return new SequentialGroup(
+                new InstantCommand(() -> powerState = true),
+                new RunToVelocity(controller, velocity, 20)
+        ).requires(this);
     }
 
     public Command shutdown(){
-        powerState = false;
-        return new SetPower(motor,0).requires(this);
+        return new SequentialGroup(
+                new InstantCommand(() -> powerState = false),
+                new SetPower(motor, 0)
+        ).requires(this);
     }
     public Command reverse() {
         return new RunToVelocity(controller,inVelocity, 20).requires(this);
     }
 
     public Command shootOut() {
-        powerState = true;
         double[] values = Limelight.INSTANCE.calculateLaunchPower();
         distanceToGoal = values[0];
         launchVelocity = values[1];
@@ -67,7 +71,6 @@ public class Flywheel implements Subsystem{
                 out(launchVelocity),
                 Intermediate.INSTANCE.rollup()
         ).requires(this);
-
     }
 
     public Command constantShot(int velocity) {
