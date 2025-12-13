@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -17,6 +18,7 @@ import dev.nextftc.extensions.pedro.FollowPath;
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
@@ -59,40 +61,14 @@ public class outred extends NextFTCOpMode {
     private Command autonomousRoutine(){
         return new SequentialGroup(
                 new FollowPath(initialLaunchPath),
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
+                Flywheel.INSTANCE.constantShot(Flywheel.outVelocity),
                 Intake.INSTANCE.rawRoll(),
-                new Delay(afterBallsDelay),
-                Launcher.INSTANCE.stop(),
+                new Delay(5),
                 Intake.INSTANCE.stop(),
+                Flywheel.INSTANCE.shutdown(),
                 new FollowPath(outtaTheWayPath)
-                /*
-                Intake.INSTANCE.inward(),
-                new FollowPath(topRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
-                new FollowPath(middleRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
-                new FollowPath(bottomRowPath),
-                Launcher.INSTANCE.outward(1,1),
-                new Delay(2),
-                Launcher.INSTANCE.stop(),
-                new FollowPath(parkPath),
-                new InstantCommand(() -> {
-                    autoPose=follower().getPose();
-                })
 
-                 */
+
         );
     }
 

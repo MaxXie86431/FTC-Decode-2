@@ -35,7 +35,7 @@ public class Flywheel implements Subsystem{
     private Flywheel() { }
     private final MotorEx motor = new MotorEx("BottomLaunch");
     private static final double TICKS_PER_REVOLUTION = 2240.0;
-    public static int outVelocity = 1000;
+    public static int outVelocity = 1180;
     public static int inVelocity = -1000;
 
     public double getVelocityRPM(){

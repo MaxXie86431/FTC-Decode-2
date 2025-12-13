@@ -17,19 +17,21 @@ import dev.nextftc.extensions.pedro.FollowPath;
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
+import org.firstinspires.ftc.teamcode.robot.Limelight;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Configurable
 @Autonomous(name = "Far Triangle Auto Blue")
 public class FarTriangleAutoBlue extends NextFTCOpMode { // Define poses
-    private static final Pose startPose = new Pose(56, 8, Math.toRadians(290));
+    private static final Pose startPose = new Pose(56, 8, Math.toRadians(110));
     private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
-    private static final Pose bottomRowStartPose = new Pose(50, 35, Math.toRadians(180));
+    private static final Pose bottomRowStartPose = new Pose(45, 35, Math.toRadians(180));
     private static final Pose bottomRowEndPose = new Pose(20, 35, Math.toRadians(180));
     private static final Pose endPose = new Pose(38.5, 34, Math.toRadians(180));
     public static double offset = 20;
@@ -48,9 +50,7 @@ public class FarTriangleAutoBlue extends NextFTCOpMode { // Define poses
     {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Launcher.INSTANCE),
-                new SubsystemComponent(Intake.INSTANCE),
-                new SubsystemComponent(Intermediate.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE, Intermediate.INSTANCE, Flywheel.INSTANCE, Limelight.INSTANCE),
                 BulkReadComponent.INSTANCE
         );
     }
@@ -58,38 +58,13 @@ public class FarTriangleAutoBlue extends NextFTCOpMode { // Define poses
     //private Command moveServo = new SetPosition(servo, 0.2).requires(this);
     private Command autonomousRoutine(){
         return new SequentialGroup(
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
-                new Delay(betweenBallsDelay),
-                Intermediate.INSTANCE.stop(),
-                new Delay(intermediateDelay),
-                Launcher.INSTANCE.outward(power,delay),
+                Flywheel.INSTANCE.shootOut(),
                 Intake.INSTANCE.rawRoll(),
-                new Delay(afterBallsDelay),
-                Launcher.INSTANCE.stop(),
+                new Delay(5),
                 Intake.INSTANCE.stop(),
-                /*
-           new FollowPath(initialToBottomStart),
-           new ParallelGroup(
-               new FollowPath(bottomRowPath),
-               Intake.INSTANCE.inward()
-           ),
-           Intake.INSTANCE.stop(),
-           Launcher.INSTANCE.outward(2),
-           new Delay(3),
-           Launcher.INSTANCE.stop(),
-           new ParallelGroup(
-               new FollowPath(middleRowPath),
-               Intake.INSTANCE.inward()
-           ),
-           Intake.INSTANCE.stop(),
-           Launcher.INSTANCE.outward(2),
-           new Delay(3),
-           Launcher.INSTANCE.stop(),*/
-            new FollowPath(outtaTheWayPath)
+                Flywheel.INSTANCE.shutdown(),
+                new FollowPath(initialToBottomStart)
+
         );
     }
     public void buildPaths() {
