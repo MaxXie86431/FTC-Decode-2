@@ -27,10 +27,10 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 @Configurable
 @Autonomous(name = "Far Triangle Auto Red")
 public class FarTriangleAutoRed extends NextFTCOpMode { // Define poses
-    private static final Pose startPose = new Pose(88, 8, Math.toRadians(70));
+    private static final Pose startPose = new Pose(88, 8, Math.toRadians(72));
     private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
-    private static final Pose bottomRowStartPose = new Pose(99, 35, Math.toRadians(0));
+    private static final Pose bottomRowStartPose = new Pose(99, 35, Math.toRadians(72));
     private static final Pose bottomRowEndPose = new Pose(20, 35, Math.toRadians(180));
     private static final Pose endPose = new Pose(105.5, 34, Math.toRadians(0));
     public static double offset = 20;

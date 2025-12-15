@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.robot;
 import com.bylazar.configurables.annotations.Configurable;
 
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelDeadlineGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
+import dev.nextftc.core.commands.utility.NullCommand;
 import dev.nextftc.hardware.controllable.RunToVelocity;
 import dev.nextftc.hardware.impl.MotorEx;
 import dev.nextftc.control.ControlSystem;
@@ -37,6 +39,7 @@ public class Flywheel implements Subsystem{
     private static final double TICKS_PER_REVOLUTION = 2240.0;
     public static int outVelocity = 1180;
     public static int inVelocity = -1000;
+    public static double launchBuffer = 2;
 
     public double getVelocityRPM(){
         double ticksPerSecond = motor.getVelocity();
@@ -60,16 +63,26 @@ public class Flywheel implements Subsystem{
         ).requires(this);
     }
     public Command reverse() {
-        return new RunToVelocity(controller,inVelocity, 20).requires(this);
+        return new ParallelGroup(
+                new RunToVelocity(controller,inVelocity, 20).requires(this),
+                Intermediate.INSTANCE.rolldown()
+        );
     }
 
     public Command shootOut() {
         double[] values = Limelight.INSTANCE.calculateLaunchPower();
         distanceToGoal = values[0];
         launchVelocity = values[1];
+        if (launchVelocity==0) {
+            return new NullCommand();
+        }
         return new SequentialGroup(
                 out(launchVelocity),
-                Intermediate.INSTANCE.rollup()
+                new ParallelDeadlineGroup(
+                        new Delay(launchBuffer),
+                        Intermediate.INSTANCE.rollup()
+                )
+
         ).requires(this);
     }
 

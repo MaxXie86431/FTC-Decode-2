@@ -35,7 +35,9 @@ import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
-
+import dev.nextftc.hardware.driving.DriverControlledCommand;
+import dev.nextftc.hardware.driving.MecanumDriverControlled;
+import dev.nextftc.hardware.impl.MotorEx;
 
 
 @Configurable
@@ -43,12 +45,15 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 public class Launchertest extends NextFTCOpMode {
     private Limelight3A Limelight3A;
     public static double llDelay = 1.25;
+    public static double speed = 0.6;
 
-    private Command driverControlled = new PedroDriverControlled(
+
+    private DriverControlledCommand driverControlled = new PedroDriverControlled(
             Gamepads.gamepad1().leftStickY().negate(),
             Gamepads.gamepad1().leftStickX().negate(),
             Gamepads.gamepad1().rightStickX().negate()
     );
+
 
     private Command turns(double angle){
         return new SequentialGroup(
@@ -99,7 +104,7 @@ public class Launchertest extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
-
+        driverControlled.setScalar(speed);
         driverControlled.schedule();
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.2)
@@ -126,29 +131,20 @@ public class Launchertest extends NextFTCOpMode {
                 .whenBecomesTrue(() -> Intermediate.INSTANCE.rollup().schedule())
                 .whenBecomesFalse(() -> Intermediate.INSTANCE.stop().schedule());
 
-        Gamepads.gamepad1().y()
-                .whenBecomesTrue(() -> Launcher.INSTANCE.outward(farLaunchPower, 2).schedule())
-                .whenBecomesFalse(() -> Launcher.INSTANCE.stop().schedule());
+        Gamepads.gamepad1().y().toggleOnBecomesTrue()
+                .whenBecomesTrue(() -> driverControlled.setScalar(1))
+                .whenBecomesFalse(() -> driverControlled.setScalar(speed));
 
-        Gamepads.gamepad1().dpadRight()
-                .whenBecomesTrue(Launcher.INSTANCE.increaseFarPower());
+        Gamepads.gamepad1().a()
+                .whenBecomesTrue(()-> Flywheel.INSTANCE.constantShot(Flywheel.outVelocity).schedule())
+                .whenBecomesFalse(()-> {
+                        Flywheel.INSTANCE.shutdown().schedule();
+                        Intermediate.INSTANCE.stop().schedule();
+                });
 
-        Gamepads.gamepad1().dpadLeft()
-                .whenBecomesTrue(Launcher.INSTANCE.decreaseFarPower());
+        Gamepads.gamepad1().b()
+                .whenBecomesTrue(()-> turns(Limelight.INSTANCE.calculateAlignmentAngle()).schedule());
 
-        Gamepads.gamepad1().dpadDown()
-                .whenBecomesTrue(Launcher.INSTANCE.decreaseClosePower());
-
-        Gamepads.gamepad1().dpadUp()
-                .whenBecomesTrue(Launcher.INSTANCE.increaseClosePower());
-
-        Gamepads.gamepad1().a().toggleOnBecomesTrue()
-                .whenBecomesTrue(()-> Launcher.INSTANCE.rawLaunch(closeLaunchPower).schedule())
-                .whenBecomesFalse(()-> Launcher.INSTANCE.stop().schedule());
-
-        Gamepads.gamepad1().b().toggleOnBecomesTrue()
-                .whenBecomesTrue(()-> turns(Limelight.INSTANCE.calculateAlignmentAngle()).schedule())
-                .whenBecomesFalse(()-> Launcher.INSTANCE.stop().schedule());
 
     }
 }

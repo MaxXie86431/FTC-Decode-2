@@ -31,7 +31,7 @@ public class FarTriangleAutoBlue extends NextFTCOpMode { // Define poses
     private static final Pose startPose = new Pose(56, 8, Math.toRadians(110));
     private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
-    private static final Pose bottomRowStartPose = new Pose(45, 35, Math.toRadians(180));
+    private static final Pose bottomRowStartPose = new Pose(45, 35, Math.toRadians(110));
     private static final Pose bottomRowEndPose = new Pose(20, 35, Math.toRadians(180));
     private static final Pose endPose = new Pose(38.5, 34, Math.toRadians(180));
     public static double offset = 20;

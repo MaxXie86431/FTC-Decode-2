@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.PedroComponent;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.robot.Flywheel;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Intermediate;
 import org.firstinspires.ftc.teamcode.robot.Launcher;
+import org.firstinspires.ftc.teamcode.robot.Limelight;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
 
@@ -31,18 +33,14 @@ public class outred extends NextFTCOpMode {
     // Define poses
     private static final Pose startPose = new Pose(119, 125, Math.toRadians(225));
     private static final Pose launchPose = new Pose(84, 84.3, Math.toRadians(225));
-    private static final Pose outtatheWayPose = new Pose(94,65, Math.toRadians(300));
+    private static final Pose outtatheWayPose = new Pose(94,65,Math.toRadians(300));
     private static final Pose parkPose = new Pose(38.5,34,225);
     private static final Pose topRowEndPose = new Pose(20, 84.35, Math.toRadians(180));
     private static final Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
     private static final Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
     private static final Pose bottomRowStartPose = new Pose(50, 36, Math.toRadians(180));
     private static final Pose bottomRowEndPose = new Pose(20, 36, Math.toRadians(180));
-    public static double delay = 2;
-    public static double betweenBallsDelay = 0.2;
-    public static double intermediateDelay = 1;
-    public static double afterBallsDelay = 3;
-    public static double power = 0.75;
+
 
     private PathChain initialLaunchPath, initialOut, outtaTheWayPath, topRowPath, middleRowPath, bottomRowPath, parkPath;
     public static Pose autoPose;
@@ -51,7 +49,7 @@ public class outred extends NextFTCOpMode {
     {
         addComponents(
                 new PedroComponent(Constants::createFollower),
-                new SubsystemComponent(Launcher.INSTANCE, Intake.INSTANCE, Intermediate.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE, Intermediate.INSTANCE, Flywheel.INSTANCE, Limelight.INSTANCE),
                 BulkReadComponent.INSTANCE
         );
     }
@@ -68,6 +66,23 @@ public class outred extends NextFTCOpMode {
                 Flywheel.INSTANCE.shutdown(),
                 new FollowPath(outtaTheWayPath)
 
+
+
+                    /*
+                    Intake.INSTANCE.inward(),
+                    new FollowPath(topRowPath),
+                    Intake.INSTANCE.stop(),
+                    Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
+                    Intake.INSTANCE.inward(),
+                    new FollowPath(middleRowPath),
+                    Intake.INSTANCE.stop(),
+                    Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3)),
+                    Intake.INSTANCE.inward(),
+                    new FollowPath(bottomRowPath),
+                    Intake.INSTANCE.stop(),
+                    Flywheel.INSTANCE.constantShot(velocity).withDeadline(new Delay(3))
+
+                     */
 
         );
     }

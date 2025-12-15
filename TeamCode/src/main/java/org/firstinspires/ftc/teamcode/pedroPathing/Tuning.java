@@ -996,6 +996,7 @@ class Line extends OpMode {
 
     private Path forwards;
     private Path backwards;
+    Vector error;
 
     @Override
     public void init() {}
@@ -1025,6 +1026,7 @@ class Line extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        updateSignals();
         drawCurrentAndHistory();
 
         if (!follower.isBusy()) {
@@ -1039,6 +1041,19 @@ class Line extends OpMode {
 
         telemetryM.debug("Driving Forward?: " + forward);
         telemetryM.update(telemetry);
+    }
+
+    private void updateSignals() {
+        // Heading error
+        telemetryM.addData("Heading Error", follower.getHeadingError());
+        // Translational error
+        error = follower.getTranslationalError();
+        telemetryM.addData("X Error", error.getXComponent());
+        telemetryM.addData("Y Error", error.getYComponent());
+        // Drive error
+        telemetryM.addData("Drive Error", follower.getDriveError());
+        telemetryM.addData("Goal", 0);
+        telemetryM.update();
     }
 }
 
