@@ -17,6 +17,7 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class Constants {
+    public static double completion = 0.9;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.65)

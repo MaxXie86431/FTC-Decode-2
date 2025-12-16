@@ -32,7 +32,7 @@ public class Intake implements Subsystem {
         return new ParallelGroup(
                 new SetPower(intakeMotor, - 1),
                 Intermediate.INSTANCE.horizontalrollup()
-        ).requires(this);
+        );//.requires(this);
     }
 
     public Command rawRoll() {

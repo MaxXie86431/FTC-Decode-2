@@ -41,12 +41,12 @@ public class Intermediate implements Subsystem{
     }
 
     public Command horizontalstop(){
-        return new SetPower(roller,0);
+        return new SetPower(roller,0).requires(this);
     }
     public Command horizontalrollup(){
-        return new SetPower(roller,1);
+        return new SetPower(roller,1).requires(this);
     }
     public Command horizontalrolldown(){
-        return new SetPower(roller,-1);
+        return new SetPower(roller,-1).requires(this);
     }
 }

@@ -59,7 +59,8 @@ public class Flywheel implements Subsystem{
     public Command shutdown(){
         return new SequentialGroup(
                 new InstantCommand(() -> powerState = false),
-                new SetPower(motor, 0)
+                new SetPower(motor, 0),
+                Intermediate.INSTANCE.stop()
         ).requires(this);
     }
     public Command reverse() {
