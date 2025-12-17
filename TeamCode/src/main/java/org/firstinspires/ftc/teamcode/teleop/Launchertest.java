@@ -98,6 +98,7 @@ public class Launchertest extends NextFTCOpMode {
 
     @Override
     public void onInit() {
+        Flywheel.powerState = false;
         Limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Limelight3A.start();
         Limelight3A.pipelineSwitch(1);

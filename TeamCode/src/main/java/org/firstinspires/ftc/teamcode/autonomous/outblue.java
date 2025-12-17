@@ -41,16 +41,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class outblue extends NextFTCOpMode {
     // Define poses
     private static Pose startPose = new Pose(22, 121, Math.toRadians(315));
-    private static Pose launchPose = new Pose(59, 83, Math.toRadians(315));
+    private static Pose launchPose = new Pose(59, 82, Math.toRadians(315));
     private static Pose outtatheWayPose = new Pose(50,65,240);
     private static Pose parkPose = new Pose(38.5,34,225);
-    private static Pose topRowEndPose = new Pose(18, 83, Math.toRadians(180));
-    private static Pose middleRowStartPose = new Pose(59, 59, Math.toRadians(180));
-    private static Pose middleRowEndPose = new Pose(20, 59, Math.toRadians(180));
-    private static Pose bottomRowStartPose = new Pose(59, 35, Math.toRadians(180));
-    private static Pose bottomRowEndPose = new Pose(20, 35, Math.toRadians(180));
+    private static Pose topRowEndPose = new Pose(18, 82, Math.toRadians(180));
+    private static Pose middleRowStartPose = new Pose(59, 56, Math.toRadians(180));
+    private static Pose middleRowEndPose = new Pose(15, 56, Math.toRadians(180));
+    private static Pose bottomRowStartPose = new Pose(59, 34, Math.toRadians(180));
+    private static Pose bottomRowEndPose = new Pose(15, 34, Math.toRadians(180));
 
-    public static double firstWait = 3;
     public static double wait = 2;
     private PathChain initialLaunchPath, initialOut, outtaTheWayPath, topRowPath, middleRowPath, bottomRowPath, parkPath;
     public static Pose autoPose;
@@ -71,15 +70,21 @@ public class outblue extends NextFTCOpMode {
 
     private Command autonomousRoutine(){
         return new SequentialGroup(
-                new FollowPath(initialLaunchPath),
-                    Flywheel.INSTANCE.out(Flywheel.outVelocity),
-                    Intake.INSTANCE.allRolls().thenWait(firstWait),
+                new ParallelGroup(
+                        new FollowPath(initialLaunchPath),
+                        Flywheel.INSTANCE.out(Flywheel.outVelocity)
+                ),
+                    Intake.INSTANCE.allRolls().thenWait(wait),
+                    Intake.INSTANCE.stopAllRolls(),
                     new FollowPath(topRowPath),
                     Intake.INSTANCE.allRolls().thenWait(wait),
+                    Intake.INSTANCE.stopAllRolls(),
                     new FollowPath(middleRowPath),
                     Intake.INSTANCE.allRolls().thenWait(wait),
+                Intake.INSTANCE.stopAllRolls(),
                     new FollowPath(bottomRowPath),
                     Intake.INSTANCE.allRolls().thenWait(wait),
+                Intake.INSTANCE.stopAllRolls(),
                     new FollowPath(outtaTheWayPath)
 
 
@@ -103,10 +108,15 @@ public class outblue extends NextFTCOpMode {
                 .addParametricCallback(Constants.start, () -> {
                     debugTelemetry.addData("CALLBACK", "topRowPath stop triggered");
                     debugTelemetry.update();
-                    Intake.INSTANCE.rawRoll().schedule();
+                    Intake.INSTANCE.inward().schedule();
                 })
                 .addPath(new BezierLine(topRowEndPose, launchPose))
                 .setLinearHeadingInterpolation(topRowEndPose.getHeading(), launchPose.getHeading())
+                .addParametricCallback(Constants.start, () -> {
+                    debugTelemetry.addData("CALLBACK", "middleRowPath stop triggered");
+                    debugTelemetry.update();
+                    Intake.INSTANCE.stop().schedule();
+                })
                 .build();
         middleRowPath = follower().pathBuilder()
                 .addPath(new BezierLine(launchPose, middleRowStartPose))
@@ -114,15 +124,15 @@ public class outblue extends NextFTCOpMode {
                 .addParametricCallback(Constants.complete, () -> {
                     debugTelemetry.addData("CALLBACK", "middleRowPath inward triggered");
                     debugTelemetry.update();
-                    Intake.INSTANCE.rawRoll().schedule();
+                    Intake.INSTANCE.inward().schedule();
                 })
                 .addPath(new BezierLine(middleRowStartPose, middleRowEndPose))
+                .addPath(new BezierLine(middleRowEndPose, launchPose))
                 .addParametricCallback(Constants.start, () -> {
                     debugTelemetry.addData("CALLBACK", "middleRowPath stop triggered");
                     debugTelemetry.update();
                     Intake.INSTANCE.stop().schedule();
                 })
-                .addPath(new BezierLine(middleRowEndPose, launchPose))
                 .setLinearHeadingInterpolation(middleRowEndPose.getHeading(), launchPose.getHeading())
                 .build();
         bottomRowPath = follower().pathBuilder()
@@ -131,16 +141,16 @@ public class outblue extends NextFTCOpMode {
                 .addParametricCallback(Constants.complete, () -> {
                     debugTelemetry.addData("CALLBACK", "bottomRowPath inward triggered");
                     debugTelemetry.update();
-                    Intake.INSTANCE.rawRoll().schedule();
+                    Intake.INSTANCE.inward().schedule();
 
                 })
                 .addPath(new BezierLine(bottomRowStartPose, bottomRowEndPose))
+                .addPath(new BezierLine(bottomRowEndPose, launchPose))
                 .addParametricCallback(Constants.start, () -> {
                     debugTelemetry.addData("CALLBACK", "bottomRowPath stop triggered");
                     debugTelemetry.update();
                     Intake.INSTANCE.stop().schedule();
                 })
-                .addPath(new BezierLine(bottomRowEndPose, launchPose))
                 .setLinearHeadingInterpolation(bottomRowEndPose.getHeading(), launchPose.getHeading())
                 .build();
         parkPath = follower().pathBuilder()

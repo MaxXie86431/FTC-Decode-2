@@ -64,5 +64,12 @@ public class Intake implements Subsystem {
         ).requires(this);
     }
 
+    public Command stopAllRolls() {
+        return new ParallelGroup(
+                Intermediate.INSTANCE.stop(),
+                Intake.INSTANCE.stop()
+        ).requires(this);
+    }
+
 
 }
