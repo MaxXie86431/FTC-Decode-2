@@ -21,28 +21,32 @@ import dev.nextftc.hardware.powerable.SetPower;
 public class Intake implements Subsystem {
 
     public static final Intake INSTANCE = new Intake();
-    private Intake() {}
+
+    private Intake() {
+    }
 
     private MotorEx intakeMotor;
+
     @Override
     public void initialize() {
         intakeMotor = new MotorEx("IntakeMotor");
     }
+
     public Command inward() {
         return new ParallelGroup(
-                new SetPower(intakeMotor, - 1),
+                new SetPower(intakeMotor, -1),
                 Intermediate.INSTANCE.horizontalrollup()
         );//.requires(this);
     }
 
     public Command rawRoll() {
-        return new SetPower(intakeMotor,-1).requires(this);
+        return new SetPower(intakeMotor, -1).requires(this);
     }
 
     public Command outward() {
         return new ParallelGroup(
-            new SetPower(intakeMotor, 1),
-            Intermediate.INSTANCE.horizontalrolldown()
+                new SetPower(intakeMotor, 1),
+                Intermediate.INSTANCE.horizontalrolldown()
         ).requires(this);
     }
 
@@ -53,19 +57,12 @@ public class Intake implements Subsystem {
         );
     }
 
-    public Command rolltest() {
-        return new SetPower(intakeMotor, -1);
-    }
-    /*
-    public Command inwards() {
-        return new SetPower(intakeMotor, 1);
-    }
-    public Command stop() {
-        return new SetPower(intakeMotor, 0);
-    }
-    public Command outward(){
-        return new SetPower(intakeMotor, -1);
+    public Command allRolls() {
+        return new ParallelGroup(
+                Intermediate.INSTANCE.rollup(),
+                Intake.INSTANCE.inward()
+        ).requires(this);
     }
 
-     */
+
 }
