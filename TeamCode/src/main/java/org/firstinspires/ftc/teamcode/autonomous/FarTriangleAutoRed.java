@@ -96,7 +96,7 @@ public class FarTriangleAutoRed extends NextFTCOpMode { // Define poses
                 .build();
         topRowPath = follower().pathBuilder()
                 .addPath(new BezierLine(startPose, topRowStartPose))
-                .addParametricCallback(Constants.completion, () -> {
+                .addParametricCallback(Constants.complete, () -> {
                     debugTelemetry.addData("CALLBACK", "topRowPath inward triggered");
                     debugTelemetry.update();
                     new InstantCommand(() -> Intake.INSTANCE.inward()).schedule();
@@ -112,7 +112,7 @@ public class FarTriangleAutoRed extends NextFTCOpMode { // Define poses
                 .build();
         middleRowPath = follower().pathBuilder()
                 .addPath(new BezierLine(startPose, middleRowStartPose))
-                .addParametricCallback(Constants.completion, () -> {
+                .addParametricCallback(Constants.complete, () -> {
                     debugTelemetry.addData("CALLBACK", "middleRowPath inward triggered");
                     debugTelemetry.update();
                     new InstantCommand(() -> Intake.INSTANCE.inward()).schedule();

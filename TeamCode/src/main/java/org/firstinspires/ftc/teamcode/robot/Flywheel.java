@@ -61,12 +61,16 @@ public class Flywheel implements Subsystem{
                 new InstantCommand(() -> powerState = false),
                 new SetPower(motor, 0),
                 Intermediate.INSTANCE.stop()
-        ).requires(this);
+        );//.requires(this);
     }
     public Command reverse() {
-        return new ParallelGroup(
-                new RunToVelocity(controller,inVelocity, 20).requires(this),
-                Intermediate.INSTANCE.rolldown()
+        return new SequentialGroup(
+                new InstantCommand(() -> powerState = true),
+                new ParallelGroup(
+                        new RunToVelocity(controller,inVelocity, 20).requires(this),
+                        Intermediate.INSTANCE.rolldown()
+                )
+
         );
     }
 

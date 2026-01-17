@@ -27,18 +27,18 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Configurable
-@Autonomous(name = "Far Auto Blue")
-public class FarAutoBlue extends NextFTCOpMode {
+@Autonomous(name = "Far Auto Red")
+public class FarAutoRed extends NextFTCOpMode {
 
-    public static Pose startPose = new Pose(59, 13, Math.toRadians(300));
-    public static Pose topRowStartPose = new Pose(50, 84.35, Math.toRadians(180));
-    public static Pose topRowEndPose = new Pose(20, 84.35, Math.toRadians(180));
-    public static Pose middleRowStartPose = new Pose(50, 60, Math.toRadians(180));
-    public static Pose middleRowEndPose = new Pose(20, 60, Math.toRadians(180));
-    public static Pose bottomRowStartPose = new Pose(45, 35, Math.toRadians(180));
-    public static Pose bottomRowEndPose = new Pose(20, 35, Math.toRadians(180));
+    public static Pose startPose = new Pose(88, 13, Math.toRadians(300));
+    public static Pose topRowStartPose = new Pose(99, 84.35, Math.toRadians(180));
+    public static Pose topRowEndPose = new Pose(124, 84.35, Math.toRadians(180));
+    public static Pose middleRowStartPose = new Pose(99, 60, Math.toRadians(180));
+    public static Pose middleRowEndPose = new Pose(124, 60, Math.toRadians(180));
+    public static Pose bottomRowStartPose = new Pose(99, 35, Math.toRadians(180));
+    public static Pose bottomRowEndPose = new Pose(124, 35, Math.toRadians(180));
     public static Pose frontLaunchPose = new Pose(59, 84.3, Math.toRadians(330));
-    public static Pose endPose = new Pose(38.5, 34, Math.toRadians(180));
+    public static Pose endPose = new Pose(85, 34, Math.toRadians(180));
 
     public static int FAR_SPEED = 1520;
     public static int FIRST_SPEED = 1520;
