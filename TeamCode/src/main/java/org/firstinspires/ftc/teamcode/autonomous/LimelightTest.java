@@ -28,15 +28,13 @@ public class LimelightTest extends OpMode {
     private static final Pose startPose = new Pose(72, 72, Math.toRadians(90));
 
     private String classNameToColor(String className) {
-
-        switch (className.toLowerCase()) {
-            case "green ball":
-                return "GREEN";
-            case "purple ball":
-                return "PURPLE";
-            default:
-                return "unknown";
+        String lower = className.toLowerCase();
+        if (lower.contains("green")) {
+            return "GREEN";
+        } else if (lower.contains("purple")) {
+            return "PURPLE";
         }
+        return "unknown";
     }
 
     // returns List["GREEN", "PURPLE", ...] sorted left to right
